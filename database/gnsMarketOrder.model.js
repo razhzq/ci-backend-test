@@ -1,6 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     const gnsMarketOrder = sequelize.define('gnsMarketOrder', {
         asset: DataTypes.STRING,
+        trade_status: DataTypes.INTEGER,
         price: DataTypes.FLOAT,
         collateral: DataTypes.FLOAT,
         delta: DataTypes.FLOAT,

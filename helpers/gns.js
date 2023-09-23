@@ -101,3 +101,40 @@ module.exports.openTradeGNS = async (privateKey, network, pairIndex, positionSiz
        console.log(error)
     }
 }
+
+
+module.exports.closeTradeGNS = async (privateKey, pairIndex, tradeIndex) => {
+
+    let account;
+    let tradingContract;
+    let daiContract;
+    let tradingStorageAddress;
+    let status;
+    if(network == 'arbitrum') {
+        account = web3.eth.accounts.privateKeyToAccount(privateKey);
+        tradingContract = new web3.eth.Contract(tradingContractAbi, '');
+        daiContract = new web3.eth.Contract(daiAbi, '');
+        tradingStorageAddress = ''
+        
+  } else {
+       account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
+       tradingContract = new web3Polygon.eth.Contract(tradingContractAbi, '');
+       daiContract = new web3Polygon.eth.Contract(daiAbi, '');
+       tradingStorageAddress = ''
+  } 
+  web3.eth.accounts.wallet.add(account);
+
+    try {
+        await tradingContract.methods.closeTradeMarket(pairIndex, tradeIndex).send({from: account}).on('transactionHash', () => {
+            status = 'success'
+            return status
+        })
+
+    } catch (error) {
+         return `Error closing GNS Trade: ${error}`
+
+    }
+}
+
+
+
