@@ -8,6 +8,7 @@ const { openTradeGNS, getGnsPairPrice, closeTradeGNS } = require('../helpers/gns
 const {Web3, net} = require('web3')
 const gnsPair = require('../database/gnsPair.model')(sequelize, Sequelize)
 const gnsMarketOrder = require('../database/gnsMarketOrder.model')(sequelize, Sequelize);
+const gnsLimitOrder = require("../database/gnsLimitOrder.model")(sequelize, Sequelize);
 const gmxMarketOrder = require('../database/gnsMarketOrder.model')(sequelize, Sequelize);
 const gmxLimitOrder = require('../database/gmxLimitOrder.model')(sequelize, Sequelize);
 const userWallet = require('../database/userWallet.model')(sequelize, Sequelize);
@@ -19,9 +20,10 @@ const { decryptor } = require('../helpers/decypter');
 
 
 module.exports.OpenMarketGNS = async (req, res) => {
-    const {collateral, leverage, asset, tp, sl, network, isLong,  userAddress} = req.body;
+    const {collateral, leverage, asset, tp, sl, network, isLong,  userAddress, orderType} = req.body;
 
     let tradeIndex;
+    let tradeTotal;
 
     const pair = await gnsPair.findOne({where: {pairName: asset}});
     const wallet = await userWallet.findOne({ where: { publicKey: userAddress}});
@@ -34,7 +36,12 @@ module.exports.OpenMarketGNS = async (req, res) => {
     const bananaPoints = (collateral * leverage) / 100;
 
     //check tradeindex
-    const tradeTotal = await gnsMarketOrder.findAll({where: {username: wallet.walletOwner, asset: asset, trade_status: 0}})
+    if(orderType == 0) {
+        tradeTotal = await gnsMarketOrder.findAll({where: {username: wallet.walletOwner, asset: asset, trade_status: 0}})
+    } else {
+        tradeTotal = await gnsLimitOrder.findAll({where: {username: wallet.walletOwner, asset: asset}})
+    }
+    
 
     while(tradeTotal.length == 3) {
         res.status(400).json('Max trades per pair reached!');
@@ -48,27 +55,45 @@ module.exports.OpenMarketGNS = async (req, res) => {
     
 
     try {
-        const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl);
+        const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl, orderType);
+        if(orderType == 0) {
+            await gnsMarketOrder.create({
+                asset: asset,
+                trade_status: 0,
+                price: spreadPrice,
+                collateral: collateral,
+                delta: 0,
+                tradeIndex: tradeIndex,
+                orderId: orderId,
+                isLong: isLong,
+                leverage: leverage,
+                network: network,
+                username: wallet.walletOwner
+            })
+    
+            await userData.update({points: bananaPoints}, {where: {username: wallet.walletOwner}});
+    
+            res.status(200).json({
+                trade_status: 'success'
+            })
+        } else {
+            await gnsLimitOrder.create({
+                asset: asset,
+                price: spreadPrice,
+                collateral: collateral,
+                delta: 0,
+                tradeIndex: orderId,
+                isLong: isLong,
+                leverage: leverage,
+                network: network,
+                username: wallet.walletOwner
+            })
+            res.status(200).json({
+                trade_status: 'success'
+            })
+        }
 
-        await gnsMarketOrder.create({
-            asset: asset,
-            trade_status: 0,
-            price: spreadPrice,
-            collateral: collateral,
-            delta: 0,
-            tradeIndex: tradeIndex,
-            orderId: orderId,
-            isLong: isLong,
-            leverage: leverage,
-            network: network,
-            username: wallet.walletOwner
-        })
-
-        await userData.update({points: bananaPoints}, {where: {username: wallet.walletOwner}});
-
-        res.status(200).json({
-            trade_status: 'success'
-        })
+        
 
     } catch (error) {
         res.status(400).json({

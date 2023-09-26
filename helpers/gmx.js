@@ -6,6 +6,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
 const path = require("path");
 const fs = require("fs");
 const { Web3 } = require("web3");
+const { calculateFees } = require("./fees");
 const providerUrl = process.env.ARBITRUM_HTTP;
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
@@ -26,6 +27,7 @@ const daiAbiPath = path.resolve(__dirname, "../contractABI/DAIcontract.json");
 const daiRawData = fs.readFileSync(daiAbiPath);
 const daiAbi = JSON.parse(daiRawData);
 const daiAddress = "";
+const apedMultiSig = process.env.APED_MULTISIG_ADD;
 
 const gmxPairMap = new Map([
   ["BTC/USD", "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f"],
@@ -72,15 +74,17 @@ module.exports.createPositionGMX = async (
   );
   const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
 
-  const collateralConv = await web3.utils.toWei(
-    collateralAmount.toString(),
-    "ether"
-  );
-  const sizeDelta = collateralAmount * leverage * 10 ** 30;
+  const fees = calculateFees(collateralAmount);
+  const tradeCollateral = parseInt(collateral) * 0.99;
+  const collateralAfterFees = web3.utils.toWei(tradeCollateral.toString(), 'ether');
+
+  const sizeDelta = tradeCollateral * leverage * 10 ** 30;
+  //fees
+ 
 
   try {
     await daiContract.methods
-      .approve(gmxPosRouterAddress, collateralConv)
+      .approve(gmxPosRouterAddress, collateralAfterFees)
       .send({
         from: account,
         gasLimit: "5000000",
@@ -98,7 +102,7 @@ module.exports.createPositionGMX = async (
             positionRouterContract.methods.createIncreasePosition(
               [daiAddress],
               indexToken,
-              collateralConv,
+              collateralAfterFees,
               0,
               BigInt(sizeDelta),
               isLong,
@@ -113,8 +117,13 @@ module.exports.createPositionGMX = async (
             gasLimit: "5000000",
             transactionBlockTimeout: 200,
           })
-          .on("receipt", (receipt) => {
+          .on("receipt", async (receipt) => {
             if (receipt.status == true) {
+
+              await daiContract.methods.transfer(apedMultiSig, fees).send({ from: account,
+                gasLimit: "21000",
+                transactionBlockTimeout: 200})
+
               return "success";
             } else {
               return "fail";

@@ -32,11 +32,12 @@ async function checkLimitOrderActiveGMX() {
             asset: asset,
             isLong: isLong,
             collateral: collateral,
+            leverage: gmxAllLimitTrades[i].leverage,
             username: gmxAllLimitTrades[i].username
          }
 
          if(isLong == true) {
-            const triggerPrice = limitPrice * 1.05;
+            const triggerPrice = limitPrice * 1.01;
             if(currentPrice <= triggerPrice && currentPrice >= limitPrice) {
                 const wallet = await userWallet.findOne({where: {walletOwner: gmxAllLimitTrades[i].username}});
                 const privateKey = decryptor(wallet.privateKey);
@@ -63,7 +64,7 @@ async function checkLimitOrderActiveGMX() {
             } 
 
          } else {
-            const triggerPrice = limitPrice * 0.95;
+            const triggerPrice = limitPrice * 0.99;
             if(currentPrice >= triggerPrice && currentPrice <= limitPrice) {
                 const wallet = await userWallet.findOne({where: {walletOwner: gmxAllLimitTrades[i].username}});
                 const privateKey = decryptor(wallet.privateKey);

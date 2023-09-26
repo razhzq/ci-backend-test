@@ -1,14 +1,11 @@
 const {Web3} = require('web3');
 
 
-function main(num) {
-     const coll = num * (10 **30);
-      
-     console.log(coll);
+function main() {
+     
 
-
-
+    console.log(Web3.utils.toWei('300.23', 'ether'))
 }
 
 
-main(100);
+main();
