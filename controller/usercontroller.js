@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config({ path: "../.env" })
 const {Sequelize} = require('sequelize');
 const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
@@ -15,8 +15,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 const crypto = require('crypto');
 
 const algorithm = 'aes-256-cbc';
-const key = process.env.KEY;
-const iv = process.env.IV_KEY;
+const key = Buffer.from(process.env.KEY, 'hex');
+const iv = Buffer.from(process.env.IV_KEY, 'hex');
 
 const cipher = crypto.createCipheriv(algorithm, key, iv);
 
