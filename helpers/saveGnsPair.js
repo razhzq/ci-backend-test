@@ -82,10 +82,9 @@ const pairMap = [
 
 const saveGNSPairContract = async () => {
 
-    const storage = new web3.eth.Contract(paircontractAbi, "0xf67Df2a4339eC1591615d94599081Dd037960d4b")
-    const polyStorage = new web3Polygon.eth.Contract(paircontractAbi, "0x6e5326e944F528c243B9Ca5d14fe5C9269a8c922")
+    const storage = new web3.eth.Contract(pairStorageAbi, "0xf67Df2a4339eC1591615d94599081Dd037960d4b")
+    const polyStorage = new web3Polygon.eth.Contract(pairStorageAbi, "0x6e5326e944F528c243B9Ca5d14fe5C9269a8c922")
 
-    
 
     for(let i =0; i < 110; i++) {
         const pair = await storage.methods.pairFeed(i).call()

@@ -1,5 +1,5 @@
 
-require('dotenv').config()
+require('dotenv').config({ path: "../.env" })
 const crypto = require('crypto');
 const algorithm = 'aes-256-cbc';
 const key = Buffer.from(process.env.KEY, 'hex');

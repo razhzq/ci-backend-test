@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config({ path: "../.env" })
 const {Sequelize} = require('sequelize');
 const { getPairPriceGMX } = require('../helpers/gmx');
 const sequelize = new Sequelize(process.env.DB_URL, {

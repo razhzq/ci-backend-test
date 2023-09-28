@@ -14,8 +14,6 @@ const userData = require("../database/userData.model")(sequelize, Sequelize);
 const path = require("path");
 const fs = require("fs");
 const {Web3} = require('web3');
-const providerUrl = process.env.ARBITRUM_HTTP;
-const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
   
 const polygonProvider = process.env.POLYGON_HTTP;
 const web3Polygon = new Web3(new Web3.providers.HttpProvider(polygonProvider))
@@ -24,11 +22,11 @@ const gnsabiPath = path.resolve(__dirname, "../contractABI/GNSCallback.json");
 const gnsrawData = fs.readFileSync(gnsabiPath);  
 const callbackAbi = JSON.parse(gnsrawData);
 
-const callbackAddress = '0x298a695906e16aeA0a184A2815A76eAd1a0b7522'
+const callbackAddress = '0x82e59334da8C667797009BBe82473B55c7A6b311'
 
 async function callbackGNSEvent() {
 
-      const callbackContract = new web3.eth.Contract(callbackAbi, callbackAddress);
+      const callbackContract = new web3Polygon.eth.Contract(callbackAbi, callbackAddress);
 
       callbackContract.events.LimitExecuted().on(
         'data', async(event) => {
@@ -45,7 +43,7 @@ async function callbackGNSEvent() {
                     const pairIndex = parseInt(eventData.pairIndex);
                     const pair = await gnsPair.findOne({where: {pairId: pairIndex}});
 
-                    const limitTrade = await gnsLimitOrder.findOne({where: {username: existingUser.walletOwner, tradeIndex: limitIndex, asset: pair.pairName, network: ''}});
+                    const limitTrade = await gnsLimitOrder.findOne({where: {username: existingUser.walletOwner, tradeIndex: limitIndex, asset: pair.pairName, network: 'polygon'}});
                     const bananaPoints = (limitTrade.collateral * limitTrade.leverage) / 100;
 
                     if(limitTrade) {
@@ -66,7 +64,7 @@ async function callbackGNSEvent() {
                             orderId: eventData.orderId,
                             isLong: limitTrade.isLong,
                             leverage: limitTrade.leverage,
-                            network: 'arbitrum',
+                            network: 'polygon',
                             username: existingUser.walletOwner
                         })
 
