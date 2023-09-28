@@ -27,12 +27,16 @@ const gnsTradingabiPath = path.resolve(
 const gnsTradingrawData = fs.readFileSync(gnsTradingabiPath);
 const tradingContractAbi = JSON.parse(gnsTradingrawData);
 const tradingContractArbitrumAddress = ''
-const tradingContractPolyAddress = ''
+const tradingContractPolyAddress = '0x6d91EDb04166251345071998Cf0Ce546Ae810E17'
+const tradingStorageArbitrumAddress = ''
+const tradingStoragePolyAddress = '0xaee4d11a16B2bc65EDD6416Fb626EB404a6D65BD'
 const apedMultiSig = process.env.APED_MULTISIG_ADD;
 
 const daiAbiPath = path.resolve(__dirname, "../contractABI/DAIcontract.json");
 const daiRawData = fs.readFileSync(daiAbiPath);
 const daiAbi = JSON.parse(daiRawData);
+const daiAddressArbitrum = '';
+const daiAddressPolygon = '';
 
 const openTradeGNSListener = async (account, network) => {
   //add contract listener to trading contract
@@ -107,18 +111,18 @@ module.exports.openTradeGNS = async (
   let account;
   let tradingContract;
   let daiContract;
-  let tradingStorageAddress;
+  let tradingStorage;
 
   if (network == "arbitrum") {
     account = web3.eth.accounts.privateKeyToAccount(privateKey);
     tradingContract = new web3.eth.Contract(tradingContractAbi, tradingContractArbitrumAddress);
-    daiContract = new web3.eth.Contract(daiAbi, "");
-    tradingStorageAddress = "";
+    daiContract = new web3.eth.Contract(daiAbi, daiAddressArbitrum);
+    tradingStorage = tradingStorageArbitrumAddress;
   } else {
     account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
     tradingContract = new web3Polygon.eth.Contract(tradingContractAbi, tradingContractPolyAddress);
-    daiContract = new web3Polygon.eth.Contract(daiAbi, "");
-    tradingStorageAddress = "";
+    daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
+    tradingStorage = tradingStoragePolyAddress;
   }
   web3.eth.accounts.wallet.add(account);
   const collateral = web3.utils.fromWei(positionSizeDai, 'ether');
@@ -141,7 +145,7 @@ module.exports.openTradeGNS = async (
 
   try {
     await daiContract.methods
-      .approve("", "amount")
+      .approve(tradingStorage, "amount")
       .send({
         from: account,
         gasLimit: "5000000",

@@ -13,7 +13,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 const gmxabiPath = path.resolve(__dirname, "../contractABI/GMXRouter.json");
 const gmxrawData = fs.readFileSync(gmxabiPath);
 const gmxRouterAbi = JSON.parse(gmxrawData);
-const gmxRouterAddress = "";
+const gmxRouterAddress = "0xaBBc5F99639c9B6bCb58544ddf04EFA6802F4064";
 
 const gmxPosabiPath = path.resolve(
   __dirname,
@@ -21,12 +21,12 @@ const gmxPosabiPath = path.resolve(
 );
 const gmxPosrawData = fs.readFileSync(gmxPosabiPath);
 const gmxPosRouterAbi = JSON.parse(gmxPosrawData);
-const gmxPosRouterAddress = "";
+const gmxPosRouterAddress = "0xb87a436B93fFE9D75c5cFA7bAcFff96430b09868";
 
 const daiAbiPath = path.resolve(__dirname, "../contractABI/DAIcontract.json");
 const daiRawData = fs.readFileSync(daiAbiPath);
 const daiAbi = JSON.parse(daiRawData);
-const daiAddress = "";
+const daiAddress = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
 const apedMultiSig = process.env.APED_MULTISIG_ADD;
 
 const gmxPairMap = new Map([
