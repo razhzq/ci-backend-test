@@ -48,6 +48,9 @@ async function calculateDeltaGMX() {
 }
 
 
+module.exports = {calculateDeltaGMX, calculateDeltaGNS};
+
+
 cron.schedule('* * * * *', () => {
     calculateDeltaGNS();
     calculateDeltaGMX();

@@ -4,7 +4,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
   })
 
-const {io} = require("../index");
+
 
 const userWallet = require('../database/userWallet.model')(sequelize, Sequelize);
 const gnsPair = require("../database/gnsPair.model")(sequelize, Sequelize);
@@ -14,11 +14,8 @@ const userData = require("../database/userData.model")(sequelize, Sequelize);
 const path = require("path");
 const fs = require("fs");
 const {Web3} = require('web3');
-const providerUrl = process.env.ARBITRUM_HTTP;
-const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
-  
-const polygonProvider = process.env.POLYGON_HTTP;
-const web3Polygon = new Web3(new Web3.providers.HttpProvider(polygonProvider))
+const providerUrl = process.env.ARBITRUM_WSS;
+const web3 = new Web3(new Web3.providers.WebsocketProvider(providerUrl));
  
 const gnsabiPath = path.resolve(__dirname, "../contractABI/GNSCallback.json");  
 const gnsrawData = fs.readFileSync(gnsabiPath);  
@@ -26,7 +23,7 @@ const callbackAbi = JSON.parse(gnsrawData);
 
 const callbackAddress = '0x298a695906e16aeA0a184A2815A76eAd1a0b7522'
 
-async function callbackGNSEvent() {
+async function callbackGNSEvent(io) {
 
       const callbackContract = new web3.eth.Contract(callbackAbi, callbackAddress);
 
@@ -73,7 +70,9 @@ async function callbackGNSEvent() {
                         await userData.update({points: bananaPoints}, {where: { username: existingUser.walletOwner}});
                         await gnsLimitOrder.destroy({where: {id: limitTrade.id}});
 
-                        io.emit('tradeActive', limitTradeOpened);
+                        
+                        io.emit('tradeActive', limitTradeOpened)
+                   
                     }
                 } else {
                     const orderId = eventData.orderId;
@@ -88,6 +87,8 @@ async function callbackGNSEvent() {
         }
       )
 }
+
+module.exports = callbackGNSEvent;
 
 
 callbackGNSEvent()

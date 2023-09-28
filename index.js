@@ -12,6 +12,8 @@ const { createBetaCodes, useBetaCode } = require("./controller/betacodecontrolle
 const { transferETH, transferDAI } = require("./controller/walletcontroller");
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
+var cron = require('node-cron');
+const { calculateDeltaGMX, calculateDeltaGNS } = require("./cron/delta");
 
 const app = express()
 
@@ -20,9 +22,10 @@ const app = express()
 const server = createServer(app);
 const io = socketIo(server);
 
-io.on('connection', (socket) => {
-  console.log('client is connected');
-})
+const callbackGNSEvent = require('./cron/eventCallback')(io)
+const callbackGNSPolygonEvent = require('./cron/eventCallbackPolygon')(io)
+const checkLimitOrderActiveGMX = require('./cron/limitOrderGMX')(io)
+
 
 app.use(bodyParser.json())
 app.use(cors({
@@ -40,7 +43,7 @@ sequelize.authenticate().then(() => {
    console.error('Unable to connect to the database:', err);
 });
 
-db.sequelize.sync({force: true}).then(() => {
+db.sequelize.sync().then(() => {
   console.log("Drop and re-sync db.");
 });
 
@@ -67,13 +70,23 @@ app.post('/wallet/withdraw/dai', transferDAI);
 
 
 
-const port = process.env.EA_PORT || 8080
+// const port = process.env.EA_PORT || 8081
 
-server.listen(port, () => console.log(`app listening on port ${port}!`))
+server.listen(8080, () => console.log(`app listening on port !`))
+
+cron.schedule('* * * * *', () => {
+  calculateDeltaGMX();
+  calculateDeltaGNS();
+});
+
+cron.schedule('* * * * *', () => {
+  checkLimitOrderActiveGMX();
+});
 
 
 
-module.exports = { io };
+
+module.exports = {io};
 
 
 

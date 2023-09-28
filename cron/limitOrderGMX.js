@@ -11,13 +11,14 @@ const gmxMarketOrder = require("../database/gmxMarketOrder.model")(sequelize, Se
 const userWallet = require("../database/userWallet.model")(sequelize, Sequelize);
 const {createPositionGMX, getAssetFromGMXAddress} = require("../helpers/gmx");
 const { decryptor } = require('../helpers/decypter');
-const {io} = require('../index');
+
 
 var cron = require('node-cron');
 
 
 
-async function checkLimitOrderActiveGMX() {
+
+async function checkLimitOrderActiveGMX(io) {
       
      const gmxAllLimitTrades = await gmxLimitOrder.findAll();
 
@@ -98,6 +99,5 @@ async function checkLimitOrderActiveGMX() {
 }
 
 
-cron.schedule('* * * * *', () => {
-     checkLimitOrderActiveGMX();
- });
+module.exports = checkLimitOrderActiveGMX;
+

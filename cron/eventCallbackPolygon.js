@@ -4,7 +4,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
   })
 
-const {io} = require("../index");
+
 
 const userWallet = require('../database/userWallet.model')(sequelize, Sequelize);
 const gnsPair = require("../database/gnsPair.model")(sequelize, Sequelize);
@@ -15,8 +15,8 @@ const path = require("path");
 const fs = require("fs");
 const {Web3} = require('web3');
   
-const polygonProvider = process.env.POLYGON_HTTP;
-const web3Polygon = new Web3(new Web3.providers.HttpProvider(polygonProvider))
+const polygonProvider = process.env.POLYGON_WSS;
+const web3Polygon = new Web3(new Web3.providers.WebsocketProvider(polygonProvider))
  
 const gnsabiPath = path.resolve(__dirname, "../contractABI/GNSCallback.json");  
 const gnsrawData = fs.readFileSync(gnsabiPath);  
@@ -24,7 +24,7 @@ const callbackAbi = JSON.parse(gnsrawData);
 
 const callbackAddress = '0x82e59334da8C667797009BBe82473B55c7A6b311'
 
-async function callbackGNSEvent() {
+async function callbackGNSPolygonEvent(io) {
 
       const callbackContract = new web3Polygon.eth.Contract(callbackAbi, callbackAddress);
 
@@ -88,4 +88,6 @@ async function callbackGNSEvent() {
 }
 
 
-callbackGNSEvent()
+module.exports = callbackGNSPolygonEvent;
+
+callbackGNSPolygonEvent()
