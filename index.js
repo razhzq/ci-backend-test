@@ -22,9 +22,12 @@ const app = express()
 const server = createServer(app);
 const io = socketIo(server);
 
-const callbackGNSEvent = require('./cron/eventCallback')(io)
-const callbackGNSPolygonEvent = require('./cron/eventCallbackPolygon')(io)
-const checkLimitOrderActiveGMX = require('./cron/limitOrderGMX')(io)
+io.on('connection', (socket) => {
+   console.log('client Connected');
+   socket.on('tradeActive', (data) => {
+    io.emit('tradeActive', data);
+   })
+})
 
 
 app.use(bodyParser.json())

@@ -14,7 +14,9 @@ const userData = require("../database/userData.model")(sequelize, Sequelize);
 const path = require("path");
 const fs = require("fs");
 const {Web3} = require('web3');
-  
+
+const io = require('socket.io-client')
+const socket = io(process.env.SOCKET_URL);
 const polygonProvider = process.env.POLYGON_WSS;
 const web3Polygon = new Web3(new Web3.providers.WebsocketProvider(polygonProvider))
  
@@ -24,7 +26,7 @@ const callbackAbi = JSON.parse(gnsrawData);
 
 const callbackAddress = '0x82e59334da8C667797009BBe82473B55c7A6b311'
 
-async function callbackGNSPolygonEvent(io) {
+async function callbackGNSPolygonEvent() {
 
       const callbackContract = new web3Polygon.eth.Contract(callbackAbi, callbackAddress);
 
@@ -71,7 +73,7 @@ async function callbackGNSPolygonEvent(io) {
                         await userData.update({points: bananaPoints}, {where: { username: existingUser.walletOwner}});
                         await gnsLimitOrder.destroy({where: {id: limitTrade.id}});
 
-                        io.emit('tradeActive', limitTradeOpened);
+                        socket.emit('tradeActive', limitTradeOpened);
                     }
                 } else {
                     const orderId = eventData.orderId;

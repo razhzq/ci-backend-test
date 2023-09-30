@@ -4,7 +4,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
   })
 
-
+const socket = io(process.env.SOCKET_URL);
 
 const userWallet = require('../database/userWallet.model')(sequelize, Sequelize);
 const gnsPair = require("../database/gnsPair.model")(sequelize, Sequelize);
@@ -23,7 +23,7 @@ const callbackAbi = JSON.parse(gnsrawData);
 
 const callbackAddress = '0x298a695906e16aeA0a184A2815A76eAd1a0b7522'
 
-async function callbackGNSEvent(io) {
+async function callbackGNSEvent() {
 
       const callbackContract = new web3.eth.Contract(callbackAbi, callbackAddress);
 
@@ -71,7 +71,8 @@ async function callbackGNSEvent(io) {
                         await gnsLimitOrder.destroy({where: {id: limitTrade.id}});
 
                         
-                        io.emit('tradeActive', limitTradeOpened)
+                        socket.emit('tradeActive', limitTradeOpened)
+
                    
                     }
                 } else {
