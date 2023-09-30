@@ -4,7 +4,8 @@ const { getPairPriceGMX } = require('../helpers/gmx');
 const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
   })
-
+const io = require('socket.io-client')
+const socket = io(process.env.SOCKET_URL);
 
 const gmxLimitOrder = require("../database/gmxLimitOrder.model")(sequelize, Sequelize);
 const gmxMarketOrder = require("../database/gmxMarketOrder.model")(sequelize, Sequelize);
@@ -18,7 +19,7 @@ var cron = require('node-cron');
 
 
 
-async function checkLimitOrderActiveGMX(io) {
+async function checkLimitOrderActiveGMX() {
       
      const gmxAllLimitTrades = await gmxLimitOrder.findAll();
 
@@ -59,7 +60,7 @@ async function checkLimitOrderActiveGMX(io) {
                       username: gmxAllLimitTrades[i].username
                    })
                    await gmxLimitOrder.destroy({where: {id: gmxAllLimitTrades[i].id}});
-                   io.emit('tradeActive', tradeData);
+                   socket.emit('tradeActive', tradeData);
 
                 }
             } 
@@ -86,7 +87,7 @@ async function checkLimitOrderActiveGMX(io) {
                       username: gmxAllLimitTrades[i].username
                    })
                    await gmxLimitOrder.destroy({where: {id: gmxAllLimitTrades[i].id}});
-                   io.emit('tradeActive', tradeData);
+                   socket.emit('tradeActive', tradeData);
 
                 }
             } 

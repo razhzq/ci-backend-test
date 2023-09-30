@@ -14,6 +14,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
 var cron = require('node-cron');
 const { calculateDeltaGMX, calculateDeltaGNS } = require("./cron/delta");
+const checkLimitOrderActiveGMX = require("./cron/limitOrderGMX");
 
 const app = express()
 
@@ -88,8 +89,6 @@ cron.schedule('* * * * *', () => {
 
 
 
-
-module.exports = {io};
 
 
 
