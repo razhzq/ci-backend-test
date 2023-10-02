@@ -1,10 +1,10 @@
-const {Web3} = require('web3');
+
+const {getPairPriceGMX} = require('./helpers/gmx')
 
 
-function main() {
-     
-
-    console.log(Web3.utils.toWei('300.23', 'ether'))
+async function main() {
+     const price = await getPairPriceGMX('BTC/USD');
+     const convPrice = price / 10 ** 30;
 }
 
 

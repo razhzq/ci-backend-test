@@ -3,7 +3,7 @@ const {Sequelize} = require('sequelize');
 const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
   })
-
+const io = require('socket.io-client');
 const socket = io(process.env.SOCKET_URL);
 
 const userWallet = require('../database/userWallet.model')(sequelize, Sequelize);

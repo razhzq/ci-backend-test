@@ -8,6 +8,7 @@ const User = require('../database/user.model')(sequelize, Sequelize);
 const gnsMarketOrder = require('../database/gnsMarketOrder.model')(sequelize, Sequelize);
 const gmxMarketOrder = require('../database/gmxMarketOrder.model')(sequelize, Sequelize);
 const UserWallet = require('../database/userWallet.model')(sequelize, Sequelize);
+const UserData = require('../database/userData.model')(sequelize, Sequelize);
 const bcrypt = require('bcrypt');
 const {Web3} = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
@@ -105,3 +106,21 @@ module.exports.getAllUserTrades = async (req, res) => {
     }
 
 }
+
+module.exports.getLeaderboards = async (_, res) => {
+       const users = await UserData.findAll();
+
+       try {
+        if(users.length > 0) {
+            users.sort((a,b) => a.pnl - b.pnl);
+            res.status(200).json(users)
+        } else {
+            res.status(200).json({user: 'no users'})
+        }
+        
+     } catch (error) {
+        res.status(400).json('error leaderboard');
+     }
+}
+
+

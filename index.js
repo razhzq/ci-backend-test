@@ -6,8 +6,8 @@ const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
 const socketIo = require('socket.io');
 const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades } = require("./controller/usercontroller");
-const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX } = require("./controller/perpcontroller");
+const { createUser, userAuthentication, getAllUserTrades, getLeaderboards } = require("./controller/usercontroller");
+const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
 const { createBetaCodes, useBetaCode } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI } = require("./controller/walletcontroller");
 const swaggerUi = require('swagger-ui-express');
@@ -15,6 +15,7 @@ const swaggerDocument = require('./swagger-output.json');
 var cron = require('node-cron');
 const { calculateDeltaGMX, calculateDeltaGNS } = require("./cron/delta");
 const checkLimitOrderActiveGMX = require("./cron/limitOrderGMX");
+const { getPriceGNS, getPriceGMX } = require("./controller/pricecontroller");
 
 const app = express()
 
@@ -55,6 +56,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //ROUTES
 app.get('/user/allTrades/:username', getAllUserTrades)
+app.get('/leaderboards', getLeaderboards);
+
+app.post('/price/gns', getPriceGNS);
+app.post('/price/gmx', getPriceGMX);
+app.post('/aggregator', aggregator);
+
 app.post('/user/create', createUser);
 app.post('/user/auth', userAuthentication);
 

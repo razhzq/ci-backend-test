@@ -123,3 +123,20 @@ module.exports.transferDAI = async (req, res) => {
         })
     }
 }
+
+
+module.exports.getUserWalletDetails = async (req, res) => {
+    const {username} = req.body;
+
+    try {
+        const wallet = await userWallet.findOne({where: {walletOwner: username}});
+        res.status(200).json({
+            wallet: wallet
+        })
+    } catch (error) {
+         res.status(400).json({
+            error: error
+         })
+    }
+
+}

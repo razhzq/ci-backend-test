@@ -241,4 +241,35 @@ module.exports.closeMarketGMX = async (req, res) => {
 }
 
 
+module.exports.aggregator = async (req, res) => {
+    const { asset, isLong } = req.body;
+
+    const gmxPrice = await getPairPriceGMX(asset);
+    const gnsPrice = await getGnsPairPrice(asset);
+
+    if(isLong == 'long') {
+        if(gmxPrice > gnsPrice) {
+             res.status(200).json({
+                best: 'gns'
+             })
+        } else {
+            res.status(200).json({
+                best: 'gmx'
+             })
+        }
+    } else {
+        if(gmxPrice > gnsPrice) {
+            res.status(200).json({
+               best: 'gmx'
+            })
+       } else {
+           res.status(200).json({
+               best: 'gns'
+            })
+       }
+    }
+
+}
+
+
 
