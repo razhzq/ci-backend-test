@@ -47,10 +47,7 @@ async function callbackGNSEvent() {
 
                     if(limitTrade) {
                         const limitTradeOpened  = {
-                            username: existingUser.walletOwner,
-                            asset: limitTrade.asset,
-                            isLong: limitTrade.isLong,
-                            collateral: limitTrade.collateral
+                            limitTrade: limitTrade
                         }
 
                         await gnsMarketOrder.create({
@@ -83,6 +80,8 @@ async function callbackGNSEvent() {
                     if(trade) {
                         await gnsMarketOrder.update({trade_status: 1}, {where: {id: trade.id}});
                     }
+
+                    socket.emit('tradeClosed', trade)
                 }
             }
         }

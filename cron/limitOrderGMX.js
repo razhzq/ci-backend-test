@@ -60,7 +60,7 @@ async function checkLimitOrderActiveGMX() {
                       username: gmxAllLimitTrades[i].username
                    })
                    await gmxLimitOrder.destroy({where: {id: gmxAllLimitTrades[i].id}});
-                   socket.emit('tradeActive', tradeData);
+                   socket.emit('gmxLimitOpen', gmxAllLimitTrades[i]);
 
                 }
             } 
@@ -87,7 +87,7 @@ async function checkLimitOrderActiveGMX() {
                       username: gmxAllLimitTrades[i].username
                    })
                    await gmxLimitOrder.destroy({where: {id: gmxAllLimitTrades[i].id}});
-                   socket.emit('tradeActive', tradeData);
+                   socket.emit('gmxLimitOpen', gmxAllLimitTrades[i]);
 
                 }
             } 

@@ -128,4 +128,19 @@ request.body = {
 
 
 
+SOCKET SUBSCRIPTION
+1. 'tradeActive'
+subscribe to events when a gns limit trade is opened
+
+2. 'tradeClosed'
+subscribe to events when a gns market order is closed due to tp or sl or liquidated
+
+3. 'gmxLimitOpen'
+subscribe to events when a gmx limit order is opened
+
+
+all of these events return the trade data of the particular trade from database
+
+
+
 

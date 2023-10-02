@@ -29,6 +29,12 @@ io.on('connection', (socket) => {
    socket.on('tradeActive', (data) => {
     io.emit('tradeActive', data);
    })
+   socket.on('tradeClosed', (data) => {
+    io.emit('tradeClosed', data)
+   })
+   socket.on('gmxLimitOpen', (data) => {
+    io.emit('gmxLimitOpen', data)
+   })
 })
 
 
