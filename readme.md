@@ -126,6 +126,20 @@ request.body = {
     username: 'sds'
 }
 
+17. create user 
+/user/create
+request.body = {
+    username: 'dsdadsd',
+    password: 'sdsdasds'
+}
+
+18. user auth 
+/user/auth
+request.body = {
+    username: 'dsdadsd',
+    password: 'sdsdasds'
+}
+
 
 
 SOCKET SUBSCRIPTION
