@@ -120,11 +120,9 @@ request.body = {
 }
 
 16. get user wallet details
-/user/wallet
+/user/wallet/:username
+example: /user/wallet/dolph5n
 -get user wallet details including public key and encrypted privatekey
-request.body = {
-    username: 'sds'
-}
 
 17. create user 
 /user/create

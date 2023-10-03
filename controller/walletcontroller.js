@@ -126,7 +126,7 @@ module.exports.transferDAI = async (req, res) => {
 
 
 module.exports.getUserWalletDetails = async (req, res) => {
-    const {username} = req.body;
+    const {username} = req.params;
 
     try {
         const wallet = await userWallet.findOne({where: {walletOwner: username}});
