@@ -87,7 +87,7 @@ request.body:
 use beta code
 request.body:
 {
-    "code": "ab-234"
+    "codes": "ab-234"
 }
 
 if code submitted has been used, API return error status 400 'code already used'
