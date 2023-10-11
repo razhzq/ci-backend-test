@@ -104,7 +104,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
 
 
 module.exports.closeMarketOrderGNS = async (req, res) => {
-     const { asset, tradeIndex, userAddress} = req.body;
+     const { asset, tradeIndex, userAddress, network} = req.body;
 
      const pair = await gnsPair.findOne({where: {pairName: asset}});
      
@@ -113,7 +113,7 @@ module.exports.closeMarketOrderGNS = async (req, res) => {
 
      try {
 
-     const status = await closeTradeGNS(privateKey, pair.pairId, tradeIndex);
+     const status = await closeTradeGNS(privateKey, pair.pairId, tradeIndex, network);
 
      if(status == 'success') {
         await gnsMarketOrder.update({trade_status: 1}, {where: { username: wallet.walletOwner, asset: asset, tradeIndex: tradeIndex}});

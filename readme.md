@@ -48,6 +48,7 @@ request.body:
     asset: 'BTC/USD',
     tp: 28000.20,  //TP Price
     sl: 20000.20,  //SL Price - can be zero
+    network: 'arbitrum' // 'polygon',
     isLong: true,
     userAddress: '0xcadsdads',
     orderType: 0   // 0 - for market order  1 - limit order

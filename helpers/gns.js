@@ -179,7 +179,7 @@ module.exports.openTradeGNS = async (
   }
 };
 
-module.exports.closeTradeGNS = async (privateKey, pairIndex, tradeIndex) => {
+module.exports.closeTradeGNS = async (privateKey, pairIndex, tradeIndex, network) => {
   let account;
   let tradingContract;
   let daiContract;
