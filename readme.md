@@ -72,7 +72,8 @@ request.body:
 {
     asset: 'BTC/USD',
     tradeIndex: 2,
-    userAddress: '0x1'
+    userAddress: '0x1',
+    network: 'arbitrum'
 }
 
 10. create beta Code (POST)
