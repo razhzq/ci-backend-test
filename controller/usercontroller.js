@@ -4,11 +4,13 @@ const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
   })
 const providerUrl = process.env.ETH_URL;
+const adminPassword = process.env.adminPassword;
 const User = require('../database/user.model')(sequelize, Sequelize);
 const gnsMarketOrder = require('../database/gnsMarketOrder.model')(sequelize, Sequelize);
 const gmxMarketOrder = require('../database/gmxMarketOrder.model')(sequelize, Sequelize);
 const UserWallet = require('../database/userWallet.model')(sequelize, Sequelize);
 const UserData = require('../database/userData.model')(sequelize, Sequelize);
+const multiplier = require('../database/multiplier.model')(sequelize, Sequelize);
 const bcrypt = require('bcrypt');
 const {Web3} = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
@@ -55,6 +57,8 @@ module.exports.createUser = async (req, res) => {
         })
     }
 }
+
+
 
 
 module.exports.userAuthentication = async (req, res) => {
@@ -124,3 +128,25 @@ module.exports.getLeaderboards = async (_, res) => {
 }
 
 
+module.exports.userAirdropPoints = async (req, res) => {
+    const { username, points, masterPassword } = req.body;
+
+    while(masterPassword == adminPassword) {
+       const user = await UserData.findOne({where: {username: username}});
+       if(user) {
+           const totalPoints = user.points + points;
+           UserData.update({points: totalPoints}, {where: {username: username}});
+
+           res.status(200).json({
+              status: 'success',
+              totalPoints: totalPoints
+           })
+       }
+
+       break
+
+    }
+    res.status(400).json('incorrect master password');
+
+
+}

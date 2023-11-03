@@ -11,6 +11,7 @@ const gnsPair = require("../database/gnsPair.model")(sequelize, Sequelize);
 const gnsMarketOrder = require("../database/gnsMarketOrder.model")(sequelize, Sequelize)
 const gnsLimitOrder = require("../database/gnsLimitOrder.model")(sequelize, Sequelize);
 const userData = require("../database/userData.model")(sequelize, Sequelize);
+const multiplier = require("../database/multiplier.model")(sequelize, Sequelize);
 const path = require("path");
 const fs = require("fs");
 const {Web3} = require('web3');
@@ -44,9 +45,10 @@ async function callbackGNSPolygonEvent() {
                     const limitIndex = parseInt(eventData.limitIndex);
                     const pairIndex = parseInt(eventData.pairIndex);
                     const pair = await gnsPair.findOne({where: {pairId: pairIndex}});
+                    const multiply = await multiplier.findAll();
 
                     const limitTrade = await gnsLimitOrder.findOne({where: {username: existingUser.walletOwner, tradeIndex: limitIndex, asset: pair.pairName, network: 'polygon'}});
-                    const bananaPoints = (limitTrade.collateral * limitTrade.leverage) / 100;
+                    const bananaPoints = ((limitTrade.collateral * limitTrade.leverage) / 100) * multiply[0].pointsMultiplier;
 
                     if(limitTrade) {
                         const limitTradeOpened  = {

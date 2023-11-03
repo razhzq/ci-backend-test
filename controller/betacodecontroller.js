@@ -29,6 +29,28 @@ module.exports.createBetaCodes = async (req, res) => {
     
 }
 
+
+module.exports.createBetaCodesByUser = async (req, res) => {
+    const {codes, username} = req.body;
+
+    try{
+        for(let i = 0; i < codes.length; i++) {
+            betaCode.create({
+                code: codes[i],
+                vailidity: true,
+                username: username
+            })
+        }
+
+        res.status(200).json('code successfully created')
+
+    } catch (error) {
+        res.status(400).json({
+            error: error
+        })
+    }
+}
+
 module.exports.useBetaCode = async (req, res) => {
     const {code} = req.body;
 
@@ -49,3 +71,5 @@ module.exports.useBetaCode = async (req, res) => {
         })
     }
 }
+
+

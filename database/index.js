@@ -17,6 +17,7 @@ db.gmxMarketOrder = require("./gmxMarketOrder.model")(sequelize, Sequelize);
 db.gmxLimitOrder = require("./gmxLimitOrder.model")(sequelize, Sequelize);
 db.gnsPair = require("./gnsPair.model")(sequelize, Sequelize)
 db.betaCode = require("./betaCode.model")(sequelize, Sequelize);
+db.multiplier = require("./multiplier.model")(sequelize, Sequelize);
 
 
 db.user.hasOne(db.userWallet);
@@ -36,6 +37,9 @@ db.gmxMarketOrder.belongsTo(db.user);
 
 db.user.hasMany(db.gmxLimitOrder);
 db.gmxLimitOrder.belongsTo(db.user);
+
+db.user.hasMany(db.betaCode);
+db.betaCode.belongsTo(db.user);
 
 
 

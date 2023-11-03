@@ -6,9 +6,9 @@ const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
 const socketIo = require('socket.io');
 const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades, getLeaderboards } = require("./controller/usercontroller");
+const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints } = require("./controller/usercontroller");
 const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
-const { createBetaCodes, useBetaCode } = require("./controller/betacodecontroller");
+const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI, getUserWalletDetails } = require("./controller/walletcontroller");
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
@@ -78,11 +78,14 @@ app.post('/limit/gmx', openLimitGMX);
 app.post('/close/gmx', closeMarketGMX);
 
 app.post('/code/create', createBetaCodes);
+app.post('/code/create/referral', createBetaCodesByUser);
 app.post('/code/use', useBetaCode);
 
 app.get('/wallet/user/:username', getUserWalletDetails)
 app.post('/wallet/withdraw/eth', transferETH);
 app.post('/wallet/withdraw/dai', transferDAI);
+
+app.post('/user/airdrop', userAirdropPoints);
 
 
 

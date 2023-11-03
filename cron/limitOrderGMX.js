@@ -10,6 +10,8 @@ const socket = io(process.env.SOCKET_URL);
 const gmxLimitOrder = require("../database/gmxLimitOrder.model")(sequelize, Sequelize);
 const gmxMarketOrder = require("../database/gmxMarketOrder.model")(sequelize, Sequelize);
 const userWallet = require("../database/userWallet.model")(sequelize, Sequelize);
+const userData = require("../database/userData.model")(sequelize, Sequelize);
+const multiplier = require("../database/multiplier.model")(sequelize, Sequelize);
 const {createPositionGMX, getAssetFromGMXAddress} = require("../helpers/gmx");
 const { decryptor } = require('../helpers/decypter');
 
@@ -22,6 +24,7 @@ var cron = require('node-cron');
 async function checkLimitOrderActiveGMX() {
       
      const gmxAllLimitTrades = await gmxLimitOrder.findAll();
+     const multiply = await multiplier.findAll();
 
      for(let i =0; i < gmxAllLimitTrades.length; i++) {
          const limitPrice = gmxAllLimitTrades[i].price;
@@ -45,9 +48,12 @@ async function checkLimitOrderActiveGMX() {
                 const privateKey = decryptor(wallet.privateKey);
                 const indexToken = getAssetFromGMXAddress(asset);
                 const status =  await createPositionGMX(privateKey, indexToken, gmxAllLimitTrades[i].collateral, isLong, triggerPrice, gmxAllLimitTrades[i].leverage);
+                const user = await userData.findOne({where: { username: wallet.walletOwner}})
 
                 if(status == 'success') {
                    const sizeDelta = gmxAllLimitTrades[i].collateral * gmxAllLimitTrades[i].leverage;
+                   const bananaPoints = (sizeDelta / 100) * multiply[0].pointsMultiplier;
+                   const totalPoints = user.points + bananaPoints;
                    await gmxMarketOrder.create({
                       asset: asset,
                       trade_status: 0,
@@ -59,6 +65,8 @@ async function checkLimitOrderActiveGMX() {
                       price: triggerPrice,
                       username: gmxAllLimitTrades[i].username
                    })
+
+                   await userData.update({points: totalPoints}, {where: { username: wallet.walletOwner}})
                    await gmxLimitOrder.destroy({where: {id: gmxAllLimitTrades[i].id}});
                    socket.emit('gmxLimitOpen', gmxAllLimitTrades[i]);
 
@@ -72,9 +80,12 @@ async function checkLimitOrderActiveGMX() {
                 const privateKey = decryptor(wallet.privateKey);
                 const indexToken = getAssetFromGMXAddress(asset);
                 const status =  await createPositionGMX(privateKey, indexToken, gmxAllLimitTrades[i].collateral, isLong, triggerPrice, gmxAllLimitTrades[i].leverage);
+                const user = await userData.findOne({where: { username: wallet.walletOwner}})
 
                 if(status == 'success') {
                    const sizeDelta = gmxAllLimitTrades[i].collateral * gmxAllLimitTrades[i].leverage;
+                   const bananaPoints = (sizeDelta / 100) * multiply[0].pointsMultiplier;
+                   const totalPoints = user.points + bananaPoints;
                    await gmxMarketOrder.create({
                       asset: asset,
                       trade_status: 0,
@@ -86,6 +97,7 @@ async function checkLimitOrderActiveGMX() {
                       price: triggerPrice,
                       username: gmxAllLimitTrades[i].username
                    })
+                   await userData.update({points: totalPoints}, {where: { username: wallet.walletOwner}})
                    await gmxLimitOrder.destroy({where: {id: gmxAllLimitTrades[i].id}});
                    socket.emit('gmxLimitOpen', gmxAllLimitTrades[i]);
 

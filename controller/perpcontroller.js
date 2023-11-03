@@ -13,6 +13,7 @@ const gmxMarketOrder = require('../database/gnsMarketOrder.model')(sequelize, Se
 const gmxLimitOrder = require('../database/gmxLimitOrder.model')(sequelize, Sequelize);
 const userWallet = require('../database/userWallet.model')(sequelize, Sequelize);
 const userData = require('../database/userData.model')(sequelize, Sequelize);
+const multiplier = require('../database/multiplier.model')(sequelize, Sequelize);
 //decryption
 const { getAssetFromGMXAddress, createPositionGMX, getPairPriceGMX, closePositionGMX } = require('../helpers/gmx');
 const { decryptor } = require('../helpers/decypter');
@@ -27,13 +28,14 @@ module.exports.OpenMarketGNS = async (req, res) => {
 
     const pair = await gnsPair.findOne({where: {pairName: asset}});
     const wallet = await userWallet.findOne({ where: { publicKey: userAddress}});
+    const multiply = await multiplier.findAll();
 
     const privateKey = decryptor(wallet.privateKey);
     const positionSize = Web3.utils.toWei(collateral.toString(), 'ether');
     const price = await getGnsPairPrice(asset);
     const spreadPrice = price * 1.0005;
     const convPrice = Web3.utils.toWei(spreadPrice.toString(), 'ether');
-    const bananaPoints = (collateral * leverage) / 100;
+    const bananaPoints = ((collateral * leverage) / 100) * multiply[0].pointsMultiplier ;
 
     //check tradeindex
     if(orderType == 0) {
@@ -135,9 +137,11 @@ module.exports.closeMarketOrderGNS = async (req, res) => {
 module.exports.openMarketGMX = async (req, res) => {
     const {userAddress, asset, collateral, leverage, isLong} = req.body;
 
+    const multiply = await multiplier.findAll()
+
     const indexToken = getAssetFromGMXAddress(asset);
     const sizeDelta = collateral * leverage;
-    const bananaPoints = sizeDelta / 100;
+    const bananaPoints = (sizeDelta / 100) * multiply[0].pointsMultiplier ;
 
     const wallet = await userWallet.findOne({where: {publicKey: userAddress}});
     const privateKey = decryptor(wallet.privateKey);
