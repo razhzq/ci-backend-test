@@ -54,7 +54,7 @@ sequelize.authenticate().then(() => {
    console.error('Unable to connect to the database:', err);
 });
 
-db.sequelize.sync({force: true}).then(() => {
+db.sequelize.sync().then(() => {
   console.log("Drop and re-sync db.");
 });
 
@@ -95,14 +95,14 @@ app.post('/user/airdrop', userAirdropPoints);
 
 server.listen(8080, () => console.log(`app listening on port !`))
 
-// cron.schedule('* * * * *', () => {
-//   calculateDeltaGMX();
-//   calculateDeltaGNS();
-// });
+cron.schedule('* * * * *', () => {
+  calculateDeltaGMX();
+  calculateDeltaGNS();
+});
 
-// cron.schedule('* * * * *', () => {
-//   checkLimitOrderActiveGMX();
-// });
+cron.schedule('* * * * *', () => {
+  checkLimitOrderActiveGMX();
+});
 
 
 
