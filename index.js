@@ -95,14 +95,14 @@ app.post('/user/airdrop', userAirdropPoints);
 
 server.listen(8080, () => console.log(`app listening on port !`))
 
-// cron.schedule('* * * * *', () => {
-//   calculateDeltaGMX();
-//   calculateDeltaGNS();
-// });
+cron.schedule('* * * * *', () => {
+  calculateDeltaGMX();
+  calculateDeltaGNS();
+});
 
-// cron.schedule('* * * * *', () => {
-//   checkLimitOrderActiveGMX();
-// });
+cron.schedule('* * * * *', () => {
+  checkLimitOrderActiveGMX();
+});
 
 
 
