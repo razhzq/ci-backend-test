@@ -38,12 +38,12 @@ module.exports.createUser = async (req, res) => {
         let encryptedKey = cipher.update(newAccount.privateKey, 'utf-8', 'hex');
         encryptedKey += cipher.final('hex');
 
-        User.create({
+        await User.create({
             username: username,
             password: hashPassword
         })
 
-        UserWallet.create({
+        await UserWallet.create({
             publicKey: newAccount.address,
             privateKey: encryptedKey,
             walletOwner: username

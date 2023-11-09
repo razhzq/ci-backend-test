@@ -122,7 +122,7 @@ request.body = {
 }
 
 16. get user wallet details
-/user/wallet/:username
+/wallet/user/:username
 example: /user/wallet/dolph5n
 -get user wallet details including public key and encrypted privatekey
 
