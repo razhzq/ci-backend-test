@@ -29,7 +29,7 @@ module.exports.transferETH = async (req, res) => {
 
     const wallet = await userWallet.findOne({where: {walletOwner: username}});
     const privateKey = decryptor(wallet.privateKey);
-    const etherValue = web3.utils.toWei(etherAmount.toString()) //cjeck if received is num
+    const etherValue = web3.utils.toWei(etherAmount.toString()) //check if received is num
     try {
         if(network == 'arbitrum') {
             const nonce = await web3.eth.getTransactionCount(wallet.publicKey);

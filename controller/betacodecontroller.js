@@ -15,7 +15,7 @@ module.exports.createBetaCodes = async (req, res) => {
         for(let i = 0; i < codes.length; i++) {
             betaCode.create({
                 code: codes[i],
-                vailidity: true
+                validity: true
             })
         }
 
@@ -37,7 +37,7 @@ module.exports.createBetaCodesByUser = async (req, res) => {
         for(let i = 0; i < codes.length; i++) {
             betaCode.create({
                 code: codes[i],
-                vailidity: true,
+                validity: true,
                 username: username
             })
         }

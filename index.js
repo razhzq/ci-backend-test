@@ -54,7 +54,7 @@ sequelize.authenticate().then(() => {
    console.error('Unable to connect to the database:', err);
 });
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({force: true}).then(() => {
   console.log("Drop and re-sync db.");
 });
 
@@ -81,7 +81,7 @@ app.post('/code/create', createBetaCodes);
 app.post('/code/create/referral', createBetaCodesByUser);
 app.post('/code/use', useBetaCode);
 
-app.get('/wallet/user/:username', getUserWalletDetails)
+app.get('/wallet/user/:username', getUserWalletDetails);
 app.post('/wallet/withdraw/eth', transferETH);
 app.post('/wallet/withdraw/dai', transferDAI);
 
@@ -95,14 +95,14 @@ app.post('/user/airdrop', userAirdropPoints);
 
 server.listen(8080, () => console.log(`app listening on port !`))
 
-cron.schedule('* * * * *', () => {
-  calculateDeltaGMX();
-  calculateDeltaGNS();
-});
+// cron.schedule('* * * * *', () => {
+//   calculateDeltaGMX();
+//   calculateDeltaGNS();
+// });
 
-cron.schedule('* * * * *', () => {
-  checkLimitOrderActiveGMX();
-});
+// cron.schedule('* * * * *', () => {
+//   checkLimitOrderActiveGMX();
+// });
 
 
 
