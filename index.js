@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
 const socketIo = require('socket.io');
 const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints } = require("./controller/usercontroller");
+const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt } = require("./controller/usercontroller");
 const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
 const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI, getUserWalletDetails } = require("./controller/walletcontroller");
@@ -54,7 +54,7 @@ sequelize.authenticate().then(() => {
    console.error('Unable to connect to the database:', err);
 });
 
-db.sequelize.sync({force: true}).then(() => {
+db.sequelize.sync().then(() => {
   console.log("Drop and re-sync db.");
 });
 
@@ -95,14 +95,14 @@ app.post('/user/airdrop', userAirdropPoints);
 
 server.listen(8080, () => console.log(`app listening on port !`))
 
-cron.schedule('* * * * *', () => {
-  calculateDeltaGMX();
-  calculateDeltaGNS();
-});
+// cron.schedule('* * * * *', () => {
+//   calculateDeltaGMX();
+//   calculateDeltaGNS();
+// });
 
-cron.schedule('* * * * *', () => {
-  checkLimitOrderActiveGMX();
-});
+// cron.schedule('* * * * *', () => {
+//   checkLimitOrderActiveGMX();
+// });
 
 
 

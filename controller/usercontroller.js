@@ -16,12 +16,17 @@ const {Web3} = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
 const crypto = require('crypto');
+const util = require('util');
+const { decryptor } = require('../helpers/decypter');
 
 const algorithm = 'aes-256-cbc';
 const key = Buffer.from(process.env.KEY, 'hex');
 const iv = Buffer.from(process.env.IV_KEY, 'hex');
 
-const cipher = crypto.createCipheriv(algorithm, key, iv);
+
+
+// const asyncCipherUpdate = util.promisify(cipher.update);
+// const asyncCipherFinal = util.promisify(cipher.final);
 
 
 
@@ -35,13 +40,17 @@ module.exports.createUser = async (req, res) => {
         const hashPassword = await bcrypt.hash(password, saltRounds);
 
         const newAccount = await web3.eth.accounts.create();
-        let encryptedKey = cipher.update(newAccount.privateKey, 'utf-8', 'hex');
-        encryptedKey += cipher.final('hex');
+
+        const cipher = crypto.createCipheriv(algorithm, key, iv);
+        let encryptedKey =  cipher.update(newAccount.privateKey, 'utf-8', 'hex');
+        encryptedKey +=  cipher.final('hex');
 
         await User.create({
             username: username,
             password: hashPassword
         })
+
+       
 
         await UserWallet.create({
             publicKey: newAccount.address,
@@ -52,11 +61,15 @@ module.exports.createUser = async (req, res) => {
         res.status(200).json(`User ${username} created successfully`);
 
     } catch (error) {
+        console.error(error)
         res.status(400).json({
             error: error
         })
     }
 }
+
+
+
 
 
 
