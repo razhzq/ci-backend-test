@@ -141,6 +141,12 @@ request.body = {
 }
 
 
+if successfull auth, returns a json object of {
+    auth: 'success',
+    token: 'token'
+}
+
+
 
 SOCKET SUBSCRIPTION
 1. 'tradeActive'
@@ -156,5 +162,12 @@ subscribe to events when a gmx limit order is opened
 all of these events return the trade data of the particular trade from database
 
 
-
+List of endpoints that need to include auth token in the header:
+- open market GNS 
+- open market GMX
+-close market GNS
+-close market GMX
+-open limit GMX
+-withdraw eth
+-withdraw dai
 

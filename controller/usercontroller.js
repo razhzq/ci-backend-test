@@ -23,6 +23,9 @@ const algorithm = 'aes-256-cbc';
 const key = Buffer.from(process.env.KEY, 'hex');
 const iv = Buffer.from(process.env.IV_KEY, 'hex');
 
+const jwt = require('jsonwebtoken');
+const jwtSecret = process.env.JWT_SECRET;
+
 
 
 // const asyncCipherUpdate = util.promisify(cipher.update);
@@ -79,6 +82,13 @@ module.exports.userAuthentication = async (req, res) => {
 
      try {
         const user = await User.findOne({where: {username: username}});
+
+        if(!user) {
+            return res.status(400).json({
+                auth: 'user not exist!'
+            })
+        }
+
         const hashedPassword = user.password;
 
         const matchedPassword = await bcrypt.compare(password, hashedPassword);
@@ -89,9 +99,13 @@ module.exports.userAuthentication = async (req, res) => {
             })
         }
 
+        const token = jwt.sign({ username: user.username, userId: user.id }, jwtSecret, { expiresIn: '24h'});
+
         res.status(200).json({
-            auth: 'success'
+            auth: 'success',
+            token: token
         })
+
      } catch (error) {
         res.status(400).json('auth failed')
      }
@@ -163,3 +177,21 @@ module.exports.userAirdropPoints = async (req, res) => {
 
 
 }
+
+
+module.exports.authenticateToken = (req, res, next) => {
+    const token = req.header('Authorization');
+
+    if (!token) {
+        return res.status(401).json({ auth: 'fail' });
+    }
+
+    jwt.verify(token, jwtSecret, (err, user) => {
+        if (err) {
+            return res.status(403).json({ auth: 'fail' });
+        }
+
+        req.user = user;
+        next();
+    });
+};

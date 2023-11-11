@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
 const socketIo = require('socket.io');
 const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt } = require("./controller/usercontroller");
+const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken } = require("./controller/usercontroller");
 const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
 const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI, getUserWalletDetails } = require("./controller/walletcontroller");
@@ -71,19 +71,19 @@ app.post('/aggregator', aggregator);
 app.post('/user/create', createUser);
 app.post('/user/auth', userAuthentication);
 
-app.post('/market/gns', OpenMarketGNS);
-app.post('/close/gns', closeMarketOrderGNS);
-app.post('/market/gmx', openMarketGMX);
-app.post('/limit/gmx', openLimitGMX);
-app.post('/close/gmx', closeMarketGMX);
+app.post('/market/gns', authenticateToken ,OpenMarketGNS);
+app.post('/close/gns', authenticateToken ,closeMarketOrderGNS);
+app.post('/market/gmx', authenticateToken , openMarketGMX);
+app.post('/limit/gmx', authenticateToken , openLimitGMX);
+app.post('/close/gmx', authenticateToken , closeMarketGMX);
 
 app.post('/code/create', createBetaCodes);
 app.post('/code/create/referral', createBetaCodesByUser);
 app.post('/code/use', useBetaCode);
 
 app.get('/wallet/user/:username', getUserWalletDetails);
-app.post('/wallet/withdraw/eth', transferETH);
-app.post('/wallet/withdraw/dai', transferDAI);
+app.post('/wallet/withdraw/eth', authenticateToken , transferETH);
+app.post('/wallet/withdraw/dai', authenticateToken , transferDAI);
 
 app.post('/user/airdrop', userAirdropPoints);
 
