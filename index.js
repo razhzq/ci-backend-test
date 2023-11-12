@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
 const socketIo = require('socket.io');
 const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken } = require("./controller/usercontroller");
+const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance } = require("./controller/usercontroller");
 const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
 const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI, getUserWalletDetails } = require("./controller/walletcontroller");
@@ -70,6 +70,7 @@ app.post('/aggregator', aggregator);
 
 app.post('/user/create', createUser);
 app.post('/user/auth', userAuthentication);
+app.get('/user/check/:username', checkUsernameRedundance);
 
 app.post('/market/gns', authenticateToken ,OpenMarketGNS);
 app.post('/close/gns', authenticateToken ,closeMarketOrderGNS);

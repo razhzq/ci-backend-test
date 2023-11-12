@@ -24,6 +24,7 @@ const key = Buffer.from(process.env.KEY, 'hex');
 const iv = Buffer.from(process.env.IV_KEY, 'hex');
 
 const jwt = require('jsonwebtoken');
+const { error } = require('console');
 const jwtSecret = process.env.JWT_SECRET;
 
 
@@ -195,3 +196,30 @@ module.exports.authenticateToken = (req, res, next) => {
         next();
     });
 };
+
+
+module.exports.checkUsernameRedundance = async (req, res) => {
+    const { username } = req.params;
+     
+    try {
+        const user = await User.findOne({where: {username: username}});
+
+        if(user) {
+            res.status(400).json({
+                availability: 'false'
+            })
+            return;
+        }
+
+        res.status(200).json({
+            availability: 'true'
+        })
+
+        
+
+    } catch (error) {
+         res.status(400).json({
+            error: error
+         })
+    }
+}
