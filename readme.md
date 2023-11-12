@@ -147,6 +147,16 @@ if successfull auth, returns a json object of {
 }
 
 
+19. check username redundancy
+/user/check/:username  
+method: GET
+example: /user/check/swampfire123
+
+returns a json object of {
+    availability: ''  // false if the username has been taken , true if the username is available
+}
+
+
 
 SOCKET SUBSCRIPTION
 1. 'tradeActive'
