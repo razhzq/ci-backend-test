@@ -25,6 +25,7 @@ const iv = Buffer.from(process.env.IV_KEY, 'hex');
 
 const jwt = require('jsonwebtoken');
 const { error } = require('console');
+const { resourceLimits } = require('worker_threads');
 const jwtSecret = process.env.JWT_SECRET;
 
 
@@ -37,7 +38,7 @@ const jwtSecret = process.env.JWT_SECRET;
 
 
 module.exports.createUser = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, chatId } = req.body;
 
     try {
         const saltRounds = 10;
@@ -51,7 +52,8 @@ module.exports.createUser = async (req, res) => {
 
         await User.create({
             username: username,
-            password: hashPassword
+            password: hashPassword,
+            chatId: chatId
         })
 
        
@@ -69,6 +71,27 @@ module.exports.createUser = async (req, res) => {
         res.status(400).json({
             error: error
         })
+    }
+}
+
+
+module.exports.getUserChatId = async (req, res) => {
+    const { username } = req.params;
+    
+    try{
+        const user = await User.findOne({where: { username: username}});
+        if(!user) {
+            res.status(400).json({
+               error: 'user not exist'
+            })
+        }
+        res.status(200).json({
+            chatId: user.chatId
+        })
+
+    } catch (error) {
+        res.status(400).json('error')
+        console.error(error);
     }
 }
 
@@ -110,8 +133,6 @@ module.exports.userAuthentication = async (req, res) => {
      } catch (error) {
         res.status(400).json('auth failed')
      }
-     
-
 
 }
 

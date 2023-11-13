@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
 const socketIo = require('socket.io');
 const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance } = require("./controller/usercontroller");
+const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance, getUserChatId } = require("./controller/usercontroller");
 const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
 const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI, getUserWalletDetails } = require("./controller/walletcontroller");
@@ -63,6 +63,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 //ROUTES
 app.get('/user/allTrades/:username', getAllUserTrades)
 app.get('/leaderboards', getLeaderboards);
+
+app.get('/chat/:username', getUserChatId);
 
 app.post('/price/gns', getPriceGNS);
 app.post('/price/gmx', getPriceGMX);
