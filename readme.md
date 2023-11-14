@@ -156,6 +156,14 @@ returns a json object of {
     availability: ''  // false if the username has been taken , true if the username is available
 }
 
+20. get Eth balance of wallet
+/wallet/balance/eth/:userAddress
+example: /wallet/balance/eth/deerab
+
+21. get Dai balance of wallet
+/wallet/balance/dai/:userAddress
+
+
 
 
 SOCKET SUBSCRIPTION
