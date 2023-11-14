@@ -157,10 +157,12 @@ returns a json object of {
 }
 
 20. get Eth balance of wallet
+method: GET
 /wallet/balance/eth/:userAddress
 example: /wallet/balance/eth/deerab
 
 21. get Dai balance of wallet
+method: GET
 /wallet/balance/dai/:userAddress
 
 
