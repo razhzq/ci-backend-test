@@ -140,3 +140,41 @@ module.exports.getUserWalletDetails = async (req, res) => {
     }
 
 }
+
+
+module.exports.getETHBalance = async (req, res) => {
+    const { userAddress } = req.params;
+
+    try {
+        web3.eth.getBalance(userAddress, (error, balance) => {
+            if(!error) {
+                const ethBalance = web3.utils.fromWei(balance, 'ether');
+                res.status(200).json({
+                    ethBalance: ethBalance
+                })
+            } else {
+                console.error(`error getting balance`)
+            }
+        })
+
+    } catch(error) {
+       res.status(400).json('error balance')
+    }
+}
+
+module.exports.getDAIBalance = async (req, res) => {
+      const { userAddress } = req.params;
+
+      try {
+        const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
+        const balance = await daiContract.methods.balanceOf(userAddress).call();
+        res.status(200).json({
+            daiBalance: balance
+        })
+      } catch (error) {
+          console.log(error);
+          res.status(400).json({
+            error: 'error getting DAI balance'
+          })
+      }
+}

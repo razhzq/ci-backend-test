@@ -9,7 +9,7 @@ const db = require('./database/index');
 const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance, getUserChatId } = require("./controller/usercontroller");
 const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
 const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
-const { transferETH, transferDAI, getUserWalletDetails } = require("./controller/walletcontroller");
+const { transferETH, transferDAI, getUserWalletDetails, getETHBalance, getDAIBalance } = require("./controller/walletcontroller");
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
 var cron = require('node-cron');
@@ -85,6 +85,8 @@ app.post('/code/create/referral', createBetaCodesByUser);
 app.post('/code/use', useBetaCode);
 
 app.get('/wallet/user/:username', getUserWalletDetails);
+app.get('/wallet/balance/eth/:userAddress', getETHBalance);
+app.get('/wallet/balance/dai/:userAddress', getDAIBalance);
 app.post('/wallet/withdraw/eth', authenticateToken , transferETH);
 app.post('/wallet/withdraw/dai', authenticateToken , transferDAI);
 
