@@ -84,6 +84,10 @@ request.body:
     codes : ["ab-1234", "ab-1232132"]  // array of betacodes
 }
 
+11. create referral (POST)
+'/code/create/referral',
+const {codes, username} = req.body;
+
 12. use beta code (POST)
 /code/use
 use beta code

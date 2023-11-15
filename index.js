@@ -6,7 +6,7 @@ const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
 const socketIo = require('socket.io');
 const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance, getUserChatId } = require("./controller/usercontroller");
+const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance, getUserChatId, getUserData } = require("./controller/usercontroller");
 const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
 const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI, getUserWalletDetails, getETHBalance, getDAIBalance } = require("./controller/walletcontroller");
@@ -70,6 +70,7 @@ app.post('/price/gns', getPriceGNS);
 app.post('/price/gmx', getPriceGMX);
 app.post('/aggregator', aggregator);
 
+app.get('/user/data/:username', getUserData);
 app.post('/user/create', createUser);
 app.post('/user/auth', userAuthentication);
 app.get('/user/check/:username', checkUsernameRedundance);
@@ -91,6 +92,7 @@ app.post('/wallet/withdraw/eth', authenticateToken , transferETH);
 app.post('/wallet/withdraw/dai', authenticateToken , transferDAI);
 
 app.post('/user/airdrop', userAirdropPoints);
+
 
 
 

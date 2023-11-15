@@ -160,6 +160,32 @@ module.exports.getAllUserTrades = async (req, res) => {
 
 }
 
+
+module.exports.getUserData = async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        const data = await UserData.findOne({where: {username : username}});
+
+        if(!data) {
+            res.status(400).json('Error user data')
+        }
+
+        res.status(200).json({
+            totalPoints: data.points,
+            totalEarning: data.pnl
+        })
+
+    } catch (error) {
+        console.error(error)
+        res.status(400).json({
+            error: 'Error fething User Data'
+        })
+    }
+}
+
+
+
 module.exports.getLeaderboards = async (_, res) => {
        const users = await UserData.findAll();
 
