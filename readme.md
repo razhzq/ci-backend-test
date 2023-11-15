@@ -169,6 +169,11 @@ example: /wallet/balance/eth/deerab
 method: GET
 /wallet/balance/dai/:userAddress
 
+22. get User points and total pnl 
+method: GET
+/user/data/:username
+example: /user/data/fish123
+
 
 
 
