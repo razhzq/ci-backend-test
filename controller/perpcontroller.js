@@ -20,6 +20,9 @@ const { decryptor } = require('../helpers/decypter');
 
 
 
+
+
+
 module.exports.OpenMarketGNS = async (req, res) => {
     const {collateral, leverage, asset, tp, sl, network, isLong,  userAddress, orderType} = req.body;
 
@@ -273,6 +276,42 @@ module.exports.aggregator = async (req, res) => {
        }
     }
 
+}
+
+module.exports.aggregatorUser = async (req, res) => {
+    const { asset, isLong, platform } = req.body;
+
+    let priceArray;
+    
+    try {
+       for(let i = 0; i < platform.length; i++) {
+          if(platform[i] == 'gmx') {
+            const gmxPrice = await getPairPriceGMX(asset);
+            priceArray.push({price: gmxPrice, platform: 'gmx'});
+          } else if (platform[i] == 'gns') {
+            const gnsPrice = await getGnsPairPrice(asset);
+            priceArray.push({price: gnsPrice, platform: 'gns'});
+          }
+       }
+
+       priceArray.sort((a, b) => a - b);  // lowest to highest
+
+       if(isLong == true) {
+          res.status(200).json({
+            best: priceArray[0].platform  
+          })
+       } else {
+        res.status(200).json({
+            best: priceArray[priceArray.length - 1].platform  
+          })
+       }
+
+
+
+        
+    } catch (error) {
+        res.status(400).json('Error getting price');
+    }
 }
 
 

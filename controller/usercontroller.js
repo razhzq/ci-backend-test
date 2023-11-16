@@ -245,6 +245,24 @@ module.exports.authenticateToken = (req, res, next) => {
 };
 
 
+module.exports.verifyToken = (req, res) => {
+    const token = req.header('Authorization');
+
+    if (!token) {
+        return res.status(401).json({ auth: 'fail' });
+    }
+
+    jwt.verify(token, jwtSecret, (err) => {
+        if (err) {
+            return res.status(403).json({ auth: 'fail' });
+        } else {
+            return res.status(200).json({ auth: 'success'});
+        }
+
+    });
+}
+
+
 module.exports.checkUsernameRedundance = async (req, res) => {
     const { username } = req.params;
      

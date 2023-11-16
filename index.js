@@ -6,8 +6,8 @@ const bodyParser = require('body-parser')
 const Sequelize = require('sequelize')
 const socketIo = require('socket.io');
 const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance, getUserChatId, getUserData } = require("./controller/usercontroller");
-const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator } = require("./controller/perpcontroller");
+const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance, getUserChatId, getUserData, verifyToken } = require("./controller/usercontroller");
+const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator, aggregatorUser } = require("./controller/perpcontroller");
 const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI, getUserWalletDetails, getETHBalance, getDAIBalance } = require("./controller/walletcontroller");
 const swaggerUi = require('swagger-ui-express');
@@ -69,11 +69,13 @@ app.get('/chat/:username', getUserChatId);
 app.post('/price/gns', getPriceGNS);
 app.post('/price/gmx', getPriceGMX);
 app.post('/aggregator', aggregator);
+app.post('/aggregator/user', aggregatorUser);
 
 app.get('/user/data/:username', getUserData);
 app.post('/user/create', createUser);
 app.post('/user/auth', userAuthentication);
 app.get('/user/check/:username', checkUsernameRedundance);
+app.get('/verify/token', verifyToken);
 
 app.post('/market/gns', authenticateToken ,OpenMarketGNS);
 app.post('/close/gns', authenticateToken ,closeMarketOrderGNS);
