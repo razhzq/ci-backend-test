@@ -174,6 +174,23 @@ method: GET
 /user/data/:username
 example: /user/data/fish123
 
+23. Aggregator user 
+method:POST
+/aggregator/user
+ request.body = {
+    asset: 'BTC/USD',
+    isLong: true,
+    platform: ['gmx', 'gnx']
+ }
+
+24. verify token
+method: GET
+send token through headers
+const headers = {
+    'Authorization': Bearer ${token},
+    'Content-Type': 'application/json', // Adjust the content type as needed
+};
+
 
 
 
