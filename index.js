@@ -88,8 +88,8 @@ app.post('/code/create/referral', createBetaCodesByUser);
 app.post('/code/use', useBetaCode);
 
 app.get('/wallet/user/:username', getUserWalletDetails);
-app.get('/wallet/balance/eth/:userAddress', getETHBalance);
-app.get('/wallet/balance/dai/:userAddress', getDAIBalance);
+app.get('/wallet/balance/eth/:username', getETHBalance);
+app.get('/wallet/balance/dai/:username', getDAIBalance);
 app.post('/wallet/withdraw/eth', authenticateToken , transferETH);
 app.post('/wallet/withdraw/dai', authenticateToken , transferDAI);
 

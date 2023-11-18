@@ -143,10 +143,13 @@ module.exports.getUserWalletDetails = async (req, res) => {
 
 
 module.exports.getETHBalance = async (req, res) => {
-    const { userAddress } = req.params;
+    const { username } = req.params;
 
     try {
-        web3.eth.getBalance(userAddress, (error, balance) => {
+
+        const user = await userWallet.findOne({where: {walletOwner: username}});
+
+        web3.eth.getBalance(user.publicKey, (error, balance) => {
             if(!error) {
                 const ethBalance = web3.utils.fromWei(balance, 'ether');
                 res.status(200).json({
@@ -163,10 +166,12 @@ module.exports.getETHBalance = async (req, res) => {
 }
 
 module.exports.getDAIBalance = async (req, res) => {
-      const { userAddress } = req.params;
+    const { username } = req.params;
+
 
       try {
-        const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
+        const user = await userWallet.findOne({where: {walletOwner: username}});
+        const daiContract = new web3.eth.Contract(user.publicKey, daiAddress);
         const balance = await daiContract.methods.balanceOf(userAddress).call();
         res.status(200).json({
             daiBalance: balance

@@ -294,7 +294,7 @@ module.exports.aggregatorUser = async (req, res) => {
           }
        }
 
-       priceArray.sort((a, b) => a - b);  // lowest to highest
+       priceArray.sort((a, b) => a.price - b.price);  // lowest to highest
 
        if(isLong == true) {
           res.status(200).json({
