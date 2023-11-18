@@ -19,7 +19,7 @@ const daiAbiPath = path.resolve(__dirname, "../contractABI/DAIcontract.json");
 const daiRawData = fs.readFileSync(daiAbiPath);
 const daiAbi = JSON.parse(daiRawData);
 
-const daiAddress = ''
+const daiAddress = '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'
 const daiPolyAddress = ''
 
 
