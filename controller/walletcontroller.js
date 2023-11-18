@@ -171,8 +171,8 @@ module.exports.getDAIBalance = async (req, res) => {
 
       try {
         const user = await userWallet.findOne({where: {walletOwner: username}});
-        const daiContract = new web3.eth.Contract(user.publicKey, daiAddress);
-        const balance = await daiContract.methods.balanceOf(userAddress).call();
+        const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
+        const balance = await daiContract.methods.balanceOf(user.publicKey).call();
         res.status(200).json({
             daiBalance: balance
         })
