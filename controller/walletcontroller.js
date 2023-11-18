@@ -153,7 +153,7 @@ module.exports.getETHBalance = async (req, res) => {
 
         const blockNumber = await web3.eth.getBlockNumber();
         const balance = await web3.eth.getBalance(user.publicKey, blockNumber);
-        const ethBalance = web3.utils.fromWei(balance, 'ether');
+        const ethBalance = parseInt(web3.utils.fromWei(balance, 'ether'));
 
         res.status(200).json({
             ethBalance: ethBalance
