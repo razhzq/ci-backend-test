@@ -151,16 +151,15 @@ module.exports.getETHBalance = async (req, res) => {
 
         const user = await userWallet.findOne({where: {walletOwner: username}});
 
-        web3.eth.getBalance(user.publicKey, (error, balance) => {
-            if(!error) {
-                const ethBalance = web3.utils.fromWei(balance, 'ether');
-                res.status(200).json({
-                    ethBalance: ethBalance
-                })
-            } else {
-                console.error(`error getting balance`)
-            }
+        const blockNumber = await web3.eth.getBlockNumber();
+        const balance = await web3.eth.getBalance(user.publicKey, blockNumber);
+        const ethBalance = web3.utils.fromWei(balance, 'ether');
+
+        res.status(200).json({
+            ethBalance: ethBalance
         })
+
+
 
     } catch(error) {
        res.status(400).json('error balance')
