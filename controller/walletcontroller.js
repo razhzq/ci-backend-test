@@ -22,6 +22,8 @@ const daiAbi = JSON.parse(daiRawData);
 const daiAddress = '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1'
 const daiPolyAddress = ''
 
+const daiDenominator = BigInt(1e18);
+
 
 
 module.exports.transferETH = async (req, res) => {
@@ -173,8 +175,10 @@ module.exports.getDAIBalance = async (req, res) => {
         const user = await userWallet.findOne({where: {walletOwner: username}});
         const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
         const balance = await daiContract.methods.balanceOf(user.publicKey).call();
+
+        const convBalance = parseInt(balance.toString()) / parseInt(daiDenominator.toString());
         res.status(200).json({
-            daiBalance: balance
+            daiBalance: convBalance
         })
       } catch (error) {
           console.log(error);
