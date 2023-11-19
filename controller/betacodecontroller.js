@@ -79,13 +79,17 @@ module.exports.checkBetaCode = async (req, res) => {
     try{
         const checkCode = await betaCode.findOne({where: {code: code}});
 
-        if(checkCode) {
-              res.status(200).json({
-                codeValidity: false
+        if(!checkCode) {
+              res.status(401).json({
+                codeValidity: 'code does not exist'
               })
-        } else {
+        } else if(checkCode.validity == true) {
             res.status(200).json({
                 codeValidity: true
+            })
+        } else if(checkCode.validity == false) {
+            res.status(200).json({
+                codeValidity: false
             })
         }
 
