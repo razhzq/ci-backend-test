@@ -8,7 +8,7 @@ const socketIo = require('socket.io');
 const db = require('./database/index');
 const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance, getUserChatId, getUserData, verifyToken } = require("./controller/usercontroller");
 const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator, aggregatorUser } = require("./controller/perpcontroller");
-const { createBetaCodes, useBetaCode, createBetaCodesByUser } = require("./controller/betacodecontroller");
+const { createBetaCodes, useBetaCode, createBetaCodesByUser, checkBetaCode } = require("./controller/betacodecontroller");
 const { transferETH, transferDAI, getUserWalletDetails, getETHBalance, getDAIBalance } = require("./controller/walletcontroller");
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger-output.json');
@@ -86,6 +86,7 @@ app.post('/close/gmx', authenticateToken , closeMarketGMX);
 app.post('/code/create', createBetaCodes);
 app.post('/code/create/referral', createBetaCodesByUser);
 app.post('/code/use', useBetaCode);
+app.post('/code/check', checkBetaCode);
 
 app.get('/wallet/user/:username', getUserWalletDetails);
 app.get('/wallet/balance/eth/:username', getETHBalance);

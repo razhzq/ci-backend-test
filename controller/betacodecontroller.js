@@ -73,3 +73,26 @@ module.exports.useBetaCode = async (req, res) => {
 }
 
 
+module.exports.checkBetaCode = async (req, res) => {
+    const {code} = req.body;
+
+    try{
+        const checkCode = await betaCode.findOne({where: {code: code}});
+
+        if(checkCode) {
+              res.status(200).json({
+                codeValidity: false
+              })
+        } else {
+            res.status(200).json({
+                codeValidity: true
+            })
+        }
+
+    } catch (error) {
+        res.status(500).json('Internal server error for beta code!');
+    }
+
+}
+
+
