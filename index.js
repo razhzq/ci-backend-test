@@ -1,121 +1,144 @@
 require("dotenv").config();
-const cors = require('cors')
-const express = require('express')
-const { createServer } = require('http')
-const bodyParser = require('body-parser')
-const Sequelize = require('sequelize')
-const socketIo = require('socket.io');
-const db = require('./database/index');
-const { createUser, userAuthentication, getAllUserTrades, getLeaderboards, userAirdropPoints, testDecrypt, authenticateToken, checkUsernameRedundance, getUserChatId, getUserData, verifyToken } = require("./controller/usercontroller");
-const { openMarketGMX, OpenMarketGNS, closeMarketOrderGNS, openLimitGMX, closeMarketGMX, aggregator, aggregatorUser } = require("./controller/perpcontroller");
-const { createBetaCodes, useBetaCode, createBetaCodesByUser, checkBetaCode } = require("./controller/betacodecontroller");
-const { transferETH, transferDAI, getUserWalletDetails, getETHBalance, getDAIBalance } = require("./controller/walletcontroller");
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger-output.json');
-var cron = require('node-cron');
+const cors = require("cors");
+const express = require("express");
+const { createServer } = require("http");
+const bodyParser = require("body-parser");
+const Sequelize = require("sequelize");
+const socketIo = require("socket.io");
+const db = require("./database/index");
+const {
+  createUser,
+  userAuthentication,
+  getAllUserTrades,
+  getLeaderboards,
+  userAirdropPoints,
+  testDecrypt,
+  authenticateToken,
+  checkUsernameRedundance,
+  getUserChatId,
+  getUserData,
+  verifyToken,
+  testData,
+} = require("./controller/usercontroller");
+const {
+  openMarketGMX,
+  OpenMarketGNS,
+  closeMarketOrderGNS,
+  openLimitGMX,
+  closeMarketGMX,
+  aggregator,
+  aggregatorUser,
+} = require("./controller/perpcontroller");
+const {
+  createBetaCodes,
+  useBetaCode,
+  createBetaCodesByUser,
+  checkBetaCode,
+} = require("./controller/betacodecontroller");
+const {
+  transferETH,
+  transferDAI,
+  getUserWalletDetails,
+  getETHBalance,
+  getDAIBalance,
+} = require("./controller/walletcontroller");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger-output.json");
+var cron = require("node-cron");
 const { calculateDeltaGMX, calculateDeltaGNS } = require("./cron/delta");
 const checkLimitOrderActiveGMX = require("./cron/limitOrderGMX");
 const { getPriceGNS, getPriceGMX } = require("./controller/pricecontroller");
 
-const app = express()
-
+const app = express();
 
 //socket
 const server = createServer(app);
 const io = socketIo(server);
 
-io.on('connection', (socket) => {
-   console.log('client Connected');
-   socket.on('tradeActive', (data) => {
-    io.emit('tradeActive', data);
-   })
-   socket.on('tradeClosed', (data) => {
-    io.emit('tradeClosed', data)
-   })
-   socket.on('gmxLimitOpen', (data) => {
-    io.emit('gmxLimitOpen', data)
-   })
-})
+io.on("connection", (socket) => {
+  console.log("client Connected");
+  socket.on("tradeActive", (data) => {
+    io.emit("tradeActive", data);
+  });
+  socket.on("tradeClosed", (data) => {
+    io.emit("tradeClosed", data);
+  });
+  socket.on("gmxLimitOpen", (data) => {
+    io.emit("gmxLimitOpen", data);
+  });
+});
 
-
-app.use(bodyParser.json())
-app.use(cors({
-    origin: '*'
- }))
-
+app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 const sequelize = new Sequelize(process.env.DB_URL, {
-    dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
-  })
-
-sequelize.authenticate().then(() => {
-    console.log('Connection has been established successfully.');
-}).catch(err => {
-   console.error('Unable to connect to the database:', err);
+  dialect: "postgres", // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
 });
+
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Connection has been established successfully.");
+  })
+  .catch((err) => {
+    console.error("Unable to connect to the database:", err);
+  });
 
 db.sequelize.sync().then(() => {
   console.log("Drop and re-sync db.");
 });
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //ROUTES
-app.get('/user/allTrades/:username', getAllUserTrades)
-app.get('/leaderboards', getLeaderboards);
+app.get("/user/allTrades/:username", getAllUserTrades);
+app.get("/leaderboards", getLeaderboards);
 
-app.get('/chat/:username', getUserChatId);
+app.get("/chat/:username", getUserChatId);
 
-app.post('/price/gns', getPriceGNS);
-app.post('/price/gmx', getPriceGMX);
-app.post('/aggregator', aggregator);
-app.post('/aggregator/user', aggregatorUser);
+app.post("/price/gns", getPriceGNS);
+app.post("/price/gmx", getPriceGMX);
+app.post("/aggregator", aggregator);
+app.post("/aggregator/user", aggregatorUser);
 
-app.get('/user/data/:username', getUserData);
-app.post('/user/create', createUser);
-app.post('/user/auth', userAuthentication);
-app.get('/user/check/:username', checkUsernameRedundance);
-app.get('/verify/token', verifyToken);
+app.get("/user/data/:username", getUserData);
+app.post("/user/create", createUser);
+app.post("/user/auth", userAuthentication);
+app.get("/user/check/:username", checkUsernameRedundance);
+app.get("/verify/token", verifyToken);
 
-app.post('/market/gns', authenticateToken ,OpenMarketGNS);
-app.post('/close/gns', authenticateToken ,closeMarketOrderGNS);
-app.post('/market/gmx', authenticateToken , openMarketGMX);
-app.post('/limit/gmx', authenticateToken , openLimitGMX);
-app.post('/close/gmx', authenticateToken , closeMarketGMX);
+app.post("/market/gns", authenticateToken, OpenMarketGNS);
+app.post("/close/gns", authenticateToken, closeMarketOrderGNS);
+app.post("/market/gmx", authenticateToken, openMarketGMX);
+app.post("/limit/gmx", authenticateToken, openLimitGMX);
+app.post("/close/gmx", authenticateToken, closeMarketGMX);
 
-app.post('/code/create', createBetaCodes);
-app.post('/code/create/referral', createBetaCodesByUser);
-app.post('/code/use', useBetaCode);
-app.post('/code/check', checkBetaCode);
+app.post("/code/create", createBetaCodes);
+app.post("/code/create/referral", createBetaCodesByUser);
+app.post("/code/use", useBetaCode);
+app.post("/code/check", checkBetaCode);
 
-app.get('/wallet/user/:username', getUserWalletDetails);
-app.get('/wallet/balance/eth/:username', getETHBalance);
-app.get('/wallet/balance/dai/:username', getDAIBalance);
-app.post('/wallet/withdraw/eth', authenticateToken , transferETH);
-app.post('/wallet/withdraw/dai', authenticateToken , transferDAI);
+app.get("/wallet/user/:username", getUserWalletDetails);
+app.get("/wallet/balance/eth/:username", getETHBalance);
+app.get("/wallet/balance/dai/:username", getDAIBalance);
+app.post("/wallet/withdraw/eth", authenticateToken, transferETH);
+app.post("/wallet/withdraw/dai", authenticateToken, transferDAI);
 
-app.post('/user/airdrop', userAirdropPoints);
-
-
-
-
-
+app.post("/user/airdrop", userAirdropPoints);
 
 // const port = process.env.EA_PORT || 8081
 
-server.listen(8080, () => console.log(`app listening on port !`))
+server.listen(8080, () => console.log(`app listening on port !`));
 
-cron.schedule('* * * * *', () => {
+cron.schedule("* * * * *", () => {
   calculateDeltaGMX();
   calculateDeltaGNS();
 });
 
-cron.schedule('* * * * *', () => {
+cron.schedule("* * * * *", () => {
   checkLimitOrderActiveGMX();
 });
-
-
-
-
-
-
