@@ -108,7 +108,7 @@ module.exports.userAuthentication = async (req, res) => {
         const user = await User.findOne({where: {username: username}});
 
         if(!user) {
-            return res.status(400).json({
+            return res.status(404).json({
                 auth: 'user not exist!'
             })
         }
@@ -118,7 +118,7 @@ module.exports.userAuthentication = async (req, res) => {
         const matchedPassword = await bcrypt.compare(password, hashedPassword);
 
         if(!matchedPassword) {
-            res.status(400).json({
+            res.status(401).json({
                 auth: 'fail'
             })
         }
@@ -131,7 +131,7 @@ module.exports.userAuthentication = async (req, res) => {
         })
 
      } catch (error) {
-        res.status(400).json('auth failed')
+        res.status(500).json('auth failed')
      }
 
 }
