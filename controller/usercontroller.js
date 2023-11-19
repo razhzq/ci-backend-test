@@ -279,7 +279,7 @@ module.exports.checkUsernameRedundance = async (req, res) => {
         const user = await User.findOne({where: {username: username}});
 
         if(user) {
-            res.status(400).json({
+            res.status(200).json({
                 availability: 'false'
             })
             return;
