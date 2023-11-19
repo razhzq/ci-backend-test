@@ -60,7 +60,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
     
 
     try {
-        const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl, orderType);
+        // const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl, orderType);
         if(orderType == 0) {
             await gnsMarketOrder.create({
                 asset: asset,
@@ -153,7 +153,8 @@ module.exports.openMarketGMX = async (req, res) => {
 
 
     try {
-        const status = await createPositionGMX(privateKey, indexToken, collateral, isLong, price, leverage);
+        // const status = await createPositionGMX(privateKey, indexToken, collateral, isLong, price, leverage);
+        const status = 'success';
         if(status == 'success') {
             await gmxMarketOrder.create({
                asset: asset,
