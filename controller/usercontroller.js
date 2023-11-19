@@ -252,6 +252,8 @@ module.exports.verifyToken = (req, res) => {
         return res.status(401).json({ auth: 'fail' });
     }
 
+    console.log('token: ', token);
+
     jwt.verify(token, jwtSecret, (err) => {
         if (err) {
             return res.status(403).json({ auth: 'fail' });
