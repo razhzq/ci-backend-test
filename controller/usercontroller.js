@@ -280,13 +280,13 @@ module.exports.checkUsernameRedundance = async (req, res) => {
 
         if(user) {
             res.status(200).json({
-                availability: 'false'
+                availability: false
             })
             return;
         }
 
         res.status(200).json({
-            availability: 'true'
+            availability: true
         })
 
         
