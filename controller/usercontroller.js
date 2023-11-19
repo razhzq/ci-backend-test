@@ -56,6 +56,13 @@ module.exports.createUser = async (req, res) => {
             chatId: chatId
         })
 
+
+        await UserData.create({
+            points: 0,
+            pnl: 0,
+            username: username
+        })
+
        
 
         await UserWallet.create({
