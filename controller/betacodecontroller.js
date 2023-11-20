@@ -80,7 +80,7 @@ module.exports.checkBetaCode = async (req, res) => {
         const checkCode = await betaCode.findOne({where: {code: code}});
 
         if(!checkCode) {
-              res.status(401).json({
+              res.status(200).json({
                 codeValidity: 'code does not exist'
               })
         } else if(checkCode.validity == true) {
