@@ -151,11 +151,11 @@ module.exports.getAllUserTrades = async (req, res) => {
     });
 
     for (let i = 0; i < gmxTrade.length; i++) {
-      gmxTrade[i].platform = "GMX";
+      gmxTrade[i].platform = "gmx";
     }
 
     for (let i = 0; i < gnsTrade.length; i++) {
-      gnsTrade[i].platform = "GAINS";
+      gnsTrade[i].platform = "gns";
     }
     const allTrades = gnsTrade.concat(gmxTrade);
     res.status(200).json(allTrades);
