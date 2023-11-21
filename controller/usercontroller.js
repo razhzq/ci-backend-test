@@ -143,22 +143,22 @@ module.exports.getAllUserTrades = async (req, res) => {
   const { username } = req.params;
 
   try {
-    const gmxTrade = await gmxMarketOrder.findAll({
+    let gmxTrade = await gmxMarketOrder.findAll({
       where: { trade_status: 0, username: username },
     });
-    const gnsTrade = await gnsMarketOrder.findAll({
+    let gnsTrade = await gnsMarketOrder.findAll({
       where: { trade_status: 0, username: username },
     });
+    
+    gmxTrade = gmxTrade.map(trade => trade.get({ plain: true }));
+    gmxTrade.forEach(trade => trade.platform = 'gmx');
 
-    for (let i = 0; i < gmxTrade.length; i++) {
-      gmxTrade[i].platform = "gmx";
-    }
+    gnsTrade = gnsTrade.map(trade => trade.get({ plain: true }));
+    gnsTrade.forEach(trade => trade.platform = 'gns');
 
-    for (let i = 0; i < gnsTrade.length; i++) {
-      gnsTrade[i].platform = "gns";
-    }
     const allTrades = gnsTrade.concat(gmxTrade);
     res.status(200).json(allTrades);
+
   } catch (error) {
     res.status(400).json(error);
   }
