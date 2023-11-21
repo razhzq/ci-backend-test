@@ -111,6 +111,8 @@ app.post("/user/auth", userAuthentication);
 app.get("/user/check/:username", checkUsernameRedundance);
 app.get("/verify/token", verifyToken);
 
+
+
 app.post("/market/gns", authenticateToken, OpenMarketGNS);
 app.post("/close/gns", authenticateToken, closeMarketOrderGNS);
 app.post("/market/gmx", authenticateToken, openMarketGMX);
