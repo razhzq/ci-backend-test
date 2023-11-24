@@ -44,10 +44,28 @@ module.exports.createBetaCodesByUser = async (req, res) => {
 
         res.status(200).json('code successfully created')
 
-    } catch (error) {
+    } catch (error)
+    {
         res.status(400).json({
             error: error
         })
+    }
+}
+
+
+module.exports.getUserBetaCodes = async (req, res) => {
+    const {username} = req.params;
+
+    try{
+        const codes = await betaCode.findAll({where: {username: username}});
+        
+        res.status(200).json({
+            codes: codes
+        })
+
+
+    } catch(error) {
+         res.status(500).json(`Internal server error`);
     }
 }
 

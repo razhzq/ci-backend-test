@@ -34,6 +34,7 @@ const {
   useBetaCode,
   createBetaCodesByUser,
   checkBetaCode,
+  getUserBetaCodes,
 } = require("./controller/betacodecontroller");
 const {
   transferETH,
@@ -123,6 +124,7 @@ app.post("/code/create", createBetaCodes);
 app.post("/code/create/referral", createBetaCodesByUser);
 app.post("/code/use", useBetaCode);
 app.post("/code/check", checkBetaCode);
+app.get('/code/list/:username', getUserBetaCodes);
 
 app.get("/wallet/user/:username", getUserWalletDetails);
 app.get("/wallet/balance/eth/:username", getETHBalance);
