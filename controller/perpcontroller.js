@@ -24,7 +24,7 @@ const { decryptor } = require('../helpers/decypter');
 
 
 module.exports.OpenMarketGNS = async (req, res) => {
-    const {collateral, leverage, asset, tp, sl, network, isLong,  userAddress, orderType} = req.body;
+    const {collateral, leverage, asset, tp, sl, network, isLong,  userAddress, orderType, limitPrice} = req.body;
 
     let tradeIndex;
     let tradeTotal;
@@ -39,6 +39,8 @@ module.exports.OpenMarketGNS = async (req, res) => {
     const spreadPrice = price * 1.0005;
     const convPrice = Web3.utils.toWei(spreadPrice.toString(), 'ether');
     const bananaPoints = ((collateral * leverage) / 100) * multiply[0].pointsMultiplier ;
+
+    const convLimitPrice = Web3.utils.toWei(limitPrice.toString(), 'ether');
 
     //check tradeindex
     if(orderType == 0) {
@@ -60,8 +62,9 @@ module.exports.OpenMarketGNS = async (req, res) => {
     
 
     try {
-        // const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl, orderType);
+       
         if(orderType == 0) {
+             // const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl, orderType);
             await gnsMarketOrder.create({
                 asset: asset,
                 trade_status: 0,
@@ -82,12 +85,13 @@ module.exports.OpenMarketGNS = async (req, res) => {
                 trade_status: 'success'
             })
         } else {
+            // const tradeIndex = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convLimitPrice, isLong, leverage, tp, sl, orderType);
             await gnsLimitOrder.create({
                 asset: asset,
-                price: spreadPrice,
+                price: limitPrice,
                 collateral: collateral,
                 delta: 0,
-                tradeIndex: orderId,
+                tradeIndex: 0, // tradeIndex,
                 isLong: isLong,
                 leverage: leverage,
                 network: network,
@@ -192,7 +196,7 @@ module.exports.openMarketGMX = async (req, res) => {
 
 
 module.exports.openLimitGMX = async (req, res) => {
-    const {userAddress, asset, collateral, leverage, isLong} = req.body;
+    const {userAddress, asset, collateral, leverage, isLong, limitPrice} = req.body;
     const indexToken = getAssetFromGMXAddress(asset);
     const sizeDelta = collateral * leverage;
 
@@ -207,7 +211,7 @@ module.exports.openLimitGMX = async (req, res) => {
             sizeDelta: sizeDelta,
             isLong: isLong,
             leverage: leverage,
-            price: price,
+            price: limitPrice,
             username: wallet.walletOwner
         })
         res.status(200).json({

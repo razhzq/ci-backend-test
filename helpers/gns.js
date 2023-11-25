@@ -56,7 +56,7 @@ const openTradeGNSListener = async (account, network) => {
       'data', async(event) => {
         const eventData = event.returnValues;
         if(eventData.trader == account.address) {
-          return eventData.OrderId;
+          return eventData.orderId;
         }
       }
     )
@@ -68,7 +68,7 @@ const openTradeGNSListener = async (account, network) => {
     contract.events.OpenLimitPlaced().on('data', async(event) => {
       const eventData = event.returnValues;
       if(eventData.trader == account.address) {
-        return eventData.pairIndex;
+        return eventData.index;
       }
     })
   });
