@@ -4,7 +4,7 @@ const {Sequelize} = require('sequelize');
 const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
   })
-const { openTradeGNS, getGnsPairPrice, closeTradeGNS } = require('../helpers/gns');
+const { openTradeGNS, getGnsPairPrice, closeTradeGNS, cancelLimitOrderGNS } = require('../helpers/gns');
 const {Web3, net} = require('web3')
 const gnsPair = require('../database/gnsPair.model')(sequelize, Sequelize)
 const gnsMarketOrder = require('../database/gnsMarketOrder.model')(sequelize, Sequelize);
@@ -143,6 +143,32 @@ module.exports.closeMarketOrderGNS = async (req, res) => {
 
 }
 
+module.exports.cancelLimitGNS = async (req, res) => {
+    const {asset, tradeIndex, username} = req.body;
+
+    const pair = await gnsPair.findOne({where: {pairName: asset}})
+
+    const wallet = await userWallet.findOne({ where: { walletOwner: username}});
+    const privateKey = decryptor(wallet.privateKey);
+    try {
+      const receipt = await cancelLimitOrderGNS(privateKey, pair.pairId, tradeIndex);
+      if (receipt.status == 'success') {
+        await gnsLimitOrder.destroy({where: { asset: asset, tradeIndex: tradeIndex, username: username}});
+
+        res.status(200).json({
+            status: 1
+        })
+      } else {
+        res.status(400).json('error closing limit order on GNS')
+      }
+
+    } catch(error) {
+       res.status(500).json('Internal server error');
+    }
+
+
+}
+
 
 module.exports.openMarketGMX = async (req, res) => {
     const {userAddress, asset, collateral, leverage, isLong} = req.body;
@@ -223,6 +249,21 @@ module.exports.openLimitGMX = async (req, res) => {
             error: error
         })
 
+    }
+}
+
+module.exports.cancelLimitGMX = async (req,res) => {
+    const {id, asset, username} = req.body; 
+
+    try {
+        await gmxLimitOrder.destroy({where: {id: id, asset: asset, username: username}});
+
+        res.status(200).json({
+            status: 'success'
+        })
+
+    } catch {
+       res.status(500).json('Error deleting limit orders')
     }
 }
 

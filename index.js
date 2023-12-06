@@ -28,6 +28,8 @@ const {
   closeMarketGMX,
   aggregator,
   aggregatorUser,
+  cancelLimitGMX,
+  cancelLimitGNS,
 } = require("./controller/perpcontroller");
 const {
   createBetaCodes,
@@ -119,6 +121,8 @@ app.post("/close/gns", authenticateToken, closeMarketOrderGNS);
 app.post("/market/gmx", authenticateToken, openMarketGMX);
 app.post("/limit/gmx", authenticateToken, openLimitGMX);
 app.post("/close/gmx", authenticateToken, closeMarketGMX);
+app.post("/close/limit/gmx", authenticateToken, cancelLimitGMX);
+app.post("/close/limit/gns", authenticateToken, cancelLimitGNS);
 
 app.post("/code/create", createBetaCodes);
 app.post("/code/create/referral", createBetaCodesByUser);
