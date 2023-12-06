@@ -19,6 +19,7 @@ const {
   getUserData,
   verifyToken,
   testData,
+  getAllUserLimitTrades,
 } = require("./controller/usercontroller");
 const {
   openMarketGMX,
@@ -99,6 +100,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //ROUTES
 app.get("/user/allTrades/:username", getAllUserTrades);
+app.get("/user/limitTrades/:username", getAllUserLimitTrades);
 app.get("/leaderboards", getLeaderboards);
 
 app.get("/chat/:username", getUserChatId);
