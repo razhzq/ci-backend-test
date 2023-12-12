@@ -94,7 +94,7 @@ module.exports.transferDAI = async (req, res) => {
     const privateKey = decryptor(wallet.privateKey);
     
     try {
-        if(network == arbitrum) {
+        if(network == 'arbitrum') {
             const account = web3.eth.accounts.privateKeyToAccount(privateKey);
             const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
             const daiToTransfer = web3.utils.toWei(daiAmount.toString());
