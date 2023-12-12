@@ -148,6 +148,7 @@ module.exports.createPositionGMX = async (
               to: gmxPosRouterAddress,
               gasPrice: pgasPrice,
               gas: 8000000,
+              value: 180000000000000,
               data: positionRouterContract.methods
                 .createIncreasePosition(
                   [daiAddress],
