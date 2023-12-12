@@ -104,7 +104,7 @@ module.exports.createPositionGMX = async (
     await web3.eth.sendSignedTransaction(daiSignature.rawTransaction).on("receipt", async (receipt) => {
 
      const rgasPrice = await web3.eth.getGasPrice();
-     const rgasEstimate = await routerContract.methods.approvePlugin(gmxPosRouterAddress).estimateGas({ from: account.address});
+     //const rgasEstimate = await routerContract.methods.approvePlugin(gmxPosRouterAddress).estimateGas({ from: account.address});
 
       const routerTx = {
         from: account.address,
