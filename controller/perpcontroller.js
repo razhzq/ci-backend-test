@@ -135,6 +135,7 @@ module.exports.closeMarketOrderGNS = async (req, res) => {
      } 
 
     } catch(error) {
+        console.log(error)
         res.status(400).json({
             closeOrder: error
         })
@@ -162,6 +163,7 @@ module.exports.cancelLimitGNS = async (req, res) => {
       }
 
     } catch(error) {
+        console.log(error)
        res.status(500).json('Internal server error');
     }
 
@@ -210,6 +212,7 @@ module.exports.openMarketGMX = async (req, res) => {
         }
 
     } catch (error) {
+       console.log(error)
        res.status(400).json({
          error: error
        })
@@ -243,6 +246,7 @@ module.exports.openLimitGMX = async (req, res) => {
         })
 
     } catch (error) {
+        console.log(error)
         res.status(400).json({
             error: error
         })
@@ -260,7 +264,8 @@ module.exports.cancelLimitGMX = async (req,res) => {
             status: 'success'
         })
 
-    } catch {
+    } catch(error) {
+        console.log(error)
        res.status(500).json('Error deleting limit orders')
     }
 }
