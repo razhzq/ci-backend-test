@@ -112,6 +112,8 @@ module.exports.createPositionGMX = async (
     await web3.eth
       .sendSignedTransaction(daiSignature.rawTransaction)
       .on("receipt", async (receipt) => {
+        const block = await web3.eth.getBlock('latest');
+        const next_gas_price = Math.ceil(block.baseFeePerGas);
         const rgasPrice = await web3.eth.getGasPrice();
         //const rgasEstimate = await routerContract.methods.approvePlugin(gmxPosRouterAddress).estimateGas({ from: account.address});
 
@@ -120,6 +122,7 @@ module.exports.createPositionGMX = async (
           to: gmxRouterAddress,
           gasPrice: rgasPrice,
           gas: 1000000,
+          maxFeePerGas: next_gas_price,
           data: routerContract.methods
             .approvePlugin(gmxPosRouterAddress)
             .encodeABI(),
@@ -133,13 +136,13 @@ module.exports.createPositionGMX = async (
         await web3.eth
           .sendSignedTransaction(routerSignature.rawTransaction)
           .on("receipt", async (receipt) => {
-            gasPrice = await web3.eth.getGasPrice();
+           const pgasPrice = await web3.eth.getGasPrice();
             // gasEstimate = await positionRouterContract.methods.createIncreasePosition([daiAddress],indexToken,collateralAfterFees,0,BigInt(sizeDelta),isLong,price,BigInt(180000000000000), "0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000").estimateGas({from: account.address});
 
             const posRouterTx = {
               from: account.address,
               to: gmxPosRouterAddress,
-              gasPrice: gasPrice,
+              gasPrice: pgasPrice,
               gas: 8000000,
               data: positionRouterContract.methods
                 .createIncreasePosition(
