@@ -123,9 +123,8 @@ module.exports.closeMarketOrderGNS = async (req, res) => {
 
      try {
 
-    //  const status = await closeTradeGNS(privateKey, pair.pairId, tradeIndex, network);
+     const status = await closeTradeGNS(privateKey, pair.pairId, tradeIndex, network);
 
-    const status = 'success';
 
      if(status == 'success') {
         await gnsMarketOrder.update({trade_status: 1}, {where: { username: wallet.walletOwner, asset: asset, tradeIndex: tradeIndex}});
@@ -186,8 +185,7 @@ module.exports.openMarketGMX = async (req, res) => {
 
 
     try {
-        // const status = await createPositionGMX(privateKey, indexToken, collateral, isLong, price, leverage);
-        const status = 'success';
+        const status = await createPositionGMX(privateKey, indexToken, collateral, isLong, price, leverage);
         if(status == 'success') {
             await gmxMarketOrder.create({
                asset: asset,
@@ -277,8 +275,7 @@ module.exports.closeMarketGMX = async (req, res) => {
        const price = await getPairPriceGMX(asset);
      
        try {
-        //    const status = await closePositionGMX(privateKey, asset, collateral, sizeDelta, isLong, wallet.publicKey, price );
-        const status = 'success';
+        const status = await closePositionGMX(privateKey, asset, collateral, sizeDelta, isLong, wallet.publicKey, price );
            if(status == 'success') {
             await gmxMarketOrder.update({trade_status: 1}, {where: {asset: asset, isLong: isLong, collateral: collateral, username: wallet.walletOwner}})
             res.status(200).json({
