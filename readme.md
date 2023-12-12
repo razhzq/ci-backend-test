@@ -191,6 +191,25 @@ const headers = {
     'Content-Type': 'application/json', // Adjust the content type as needed
 };
 
+25. cancel limit Order GNS
+method: POST
+/close/limit/gns
+
+req.body: {
+    asset: "BTC/USD",
+    tradeIndex: 1,
+    username: adsdsd
+}
+
+26. cancel limit order GMX
+method: POST
+/close/limit/gmx
+req.body: {
+    id: 0,
+    asset: "BTC/USD",
+    username: asdsds
+}
+
 
 
 

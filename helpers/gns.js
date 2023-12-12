@@ -211,4 +211,21 @@ module.exports.closeTradeGNS = async (privateKey, pairIndex, tradeIndex, network
   }
 };
 
+module.exports.cancelLimitOrderGNS = async (privateKey, pairIndex, limitIndex) => {
+     const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+     const tradingContract = new web3.eth.Contract(tradingContractAbi, "");
+     web3.eth.accounts.wallet.add(account);
+
+     try{
+       const receipt = await tradingContract.methods.cancelOpenLimitOrder(pairIndex, limitIndex).send({from: account});
+ 
+       if(receipt.status == 1) {
+        return {status : "success"}
+       }
+     } catch(error) {
+      return `Error closing Limit Trade: ${error}`;
+     }
+
+}
+
 

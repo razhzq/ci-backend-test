@@ -23,6 +23,8 @@ const multiplier = require("../database/multiplier.model")(
   sequelize,
   Sequelize
 );
+const gnsLimitOrder = require("../database/gnsLimitOrder.model")(sequelize, Sequelize);
+const gmxLimitOrder = require("../database/gmxLimitOrder.model")(sequelize, Sequelize);
 const bcrypt = require("bcrypt");
 const { Web3 } = require("web3");
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
@@ -163,6 +165,28 @@ module.exports.getAllUserTrades = async (req, res) => {
     res.status(400).json(error);
   }
 };
+
+module.exports.getAllUserLimitTrades = async (req, res) => {
+  const {username} = req.params;
+
+  try {
+    let gmxTrade = await gmxLimitOrder.findAll({ where: { username: username}})
+    let gnsTrade = await gnsLimitOrder.findAll({ where: { username: username}})
+
+    gmxTrade = gmxTrade.map(trade => trade.get({ plain: true }));
+    gmxTrade.forEach(trade => trade.platform = 'gmx');
+
+    gnsTrade = gnsTrade.map(trade => trade.get({ plain: true }));
+    gnsTrade.forEach(trade => trade.platform = 'gns');
+
+    const allTrades = gnsTrade.concat(gmxTrade);
+    res.status(200).json(allTrades);
+
+
+  } catch (error) {
+    res.status(400).json(error);
+  }
+}
 
 module.exports.getUserData = async (req, res) => {
   const { username } = req.params;
