@@ -89,10 +89,14 @@ module.exports.createPositionGMX = async (
 
   try {
 
+    const gasPrice = await web3.eth.getGasPrice();
+    const gasEstimate = await daiContract.methods.approve(gmxPosRouterAddress, collateralAfterFees).estimateGas({from: account.address});
+
     const tx = {
       from: account.address,
       to: daiAddress,
-      gasLimit: web3.utils.toHex(5000000),
+      gasPrice: gasPrice,
+      gas: gasEstimate,
       data: daiContract.methods.approve(gmxPosRouterAddress, collateralAfterFees).encodeABI()
     }
     const daiSignature = await web3.eth.accounts.signTransaction(tx, privateKey);
@@ -159,7 +163,7 @@ module.exports.createPositionGMX = async (
       event: 'openTradeGMX',
       timestamp: new Date()
     })
-    console.log(error.message);
+    console.log(error);
   }
 };
 
