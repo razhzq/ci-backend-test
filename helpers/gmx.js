@@ -88,53 +88,71 @@ module.exports.createPositionGMX = async (
  
 
   try {
-    await daiContract.methods
-      .approve(gmxPosRouterAddress, collateralAfterFees)
-      .send({
-        from: account.address,
-        gasLimit: "5000000",
-        transactionBlockTimeout: 200,
-      })
-      .on("transactionHash", (hash) => {
-        routerContract.methods
-          .approvePlugin(gmxPosRouterAddress)
-          .send({
-            from: account.address,
-            gasLimit: "5000000",
-            transactionBlockTimeout: 200,
-          })
-          .on("transactionHash", (hash) => {
-            positionRouterContract.methods.createIncreasePosition(
-              [daiAddress],
-              indexToken,
-              collateralAfterFees,
-              0,
-              BigInt(sizeDelta),
-              isLong,
-              price,
-              BigInt(180000000000000), //execution fees minimum
-              "0x0000000000000000000000000000000000000000000000000000000000000000",
-              "0x0000000000000000000000000000000000000000"
-            );
-          })
-          .send({
-            from: account.address,
-            gasLimit: "5000000",
-            transactionBlockTimeout: 200,
-          })
-          .on("receipt", async (receipt) => {
-            if (receipt.status == true) {
 
-              await daiContract.methods.transfer(apedMultiSig, fees).send({ from: account.address,
-                gasLimit: "210000",
-                transactionBlockTimeout: 200})
+    const tx = {
+      from: account.address,
+      to: daiAddress,
+      gas: 5000000,
+      data: daiContract.methods.approve(gmxPosRouterAddress, collateralAfterFees).encodeABI()
+    }
+    const daiSignature = await web3.eth.accounts.signTransaction(tx, privateKey);
 
-              return "success";
-            } else {
-              return "fail";
-            }
-          });
-      });
+    await web3.eth.sendSignedTransaction(daiSignature.rawTransaction).on("receipt", (receipt) => {
+      console.log(receipt)
+    })
+
+    return "success"
+
+
+
+    
+    // await daiContract.methods
+    //   .approve(gmxPosRouterAddress, collateralAfterFees)
+    //   .send({
+    //     from: account.address,
+    //     gasLimit: "5000000",
+    //     transactionBlockTimeout: 200,
+    //   })
+    //   .on("transactionHash", (hash) => {
+    //     routerContract.methods
+    //       .approvePlugin(gmxPosRouterAddress)
+    //       .send({
+    //         from: account.address,
+    //         gasLimit: "5000000",
+    //         transactionBlockTimeout: 200,
+    //       })
+    //       .on("transactionHash", (hash) => {
+    //         positionRouterContract.methods.createIncreasePosition(
+    //           [daiAddress],
+    //           indexToken,
+    //           collateralAfterFees,
+    //           0,
+    //           BigInt(sizeDelta),
+    //           isLong,
+    //           price,
+    //           BigInt(180000000000000), //execution fees minimum
+    //           "0x0000000000000000000000000000000000000000000000000000000000000000",
+    //           "0x0000000000000000000000000000000000000000"
+    //         );
+    //       })
+    //       .send({
+    //         from: account.address,
+    //         gasLimit: "5000000",
+    //         transactionBlockTimeout: 200,
+    //       })
+    //       .on("receipt", async (receipt) => {
+    //         if (receipt.status == true) {
+
+    //           await daiContract.methods.transfer(apedMultiSig, fees).send({ from: account.address,
+    //             gasLimit: "210000",
+    //             transactionBlockTimeout: 200})
+
+    //           return "success";
+    //         } else {
+    //           return "fail";
+    //         }
+    //       });
+    //   });
   } catch (error) {
     await errorLog.create({
       error: error.message,
