@@ -74,6 +74,8 @@ module.exports.createPositionGMX = async (
   const providersAccount = await web3.eth.getAccounts();
   const defaultAccount = providersAccount[0];
 
+  console.log('defaultAccount: ', defaultAccount);
+
   const routerContract = new web3.eth.Contract(gmxRouterAbi, gmxRouterAddress);
   const positionRouterContract = new web3.eth.Contract(
     gmxPosRouterAbi,
