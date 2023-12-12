@@ -64,14 +64,14 @@ module.exports.OpenMarketGNS = async (req, res) => {
     try {
        
         if(orderType == 0) {
-             // const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl, orderType);
+            const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl, orderType);
             await gnsMarketOrder.create({
                 asset: asset,
                 trade_status: 0,
                 price: spreadPrice,
                 collateral: collateral,
                 delta: 0,
-                tradeIndex: tradeIndex,
+                tradeIndex: orderId,
                 orderId: 0,  // change to orderId when back to production
                 isLong: isLong,
                 leverage: leverage,
@@ -85,13 +85,13 @@ module.exports.OpenMarketGNS = async (req, res) => {
                 trade_status: 'success'
             })
         } else {
-            // const tradeIndex = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convLimitPrice, isLong, leverage, tp, sl, orderType);
+            const tradeIndex = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convLimitPrice, isLong, leverage, tp, sl, orderType);
             await gnsLimitOrder.create({
                 asset: asset,
                 price: limitPrice,
                 collateral: collateral,
                 delta: 0,
-                tradeIndex: 0, // tradeIndex,
+                tradeIndex: tradeIndex, // tradeIndex,
                 isLong: isLong,
                 leverage: leverage,
                 network: network,

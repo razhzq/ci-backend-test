@@ -5,6 +5,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
 });
 
 const gnsPair = require("../database/gnsPair.model")(sequelize, Sequelize);
+const errorLog = require("../database/errorLog.model")(sequelize, Sequelize);
 const path = require("path");
 const fs = require("fs");
 const { Web3 } = require("web3");
@@ -26,16 +27,16 @@ const gnsTradingabiPath = path.resolve(
 );
 const gnsTradingrawData = fs.readFileSync(gnsTradingabiPath);
 const tradingContractAbi = JSON.parse(gnsTradingrawData);
-const tradingContractArbitrumAddress = ''
+const tradingContractArbitrumAddress = '0x2c7e82641f03Fa077F88833213210A86027f15dc'
 const tradingContractPolyAddress = '0x6d91EDb04166251345071998Cf0Ce546Ae810E17'
-const tradingStorageArbitrumAddress = ''
+const tradingStorageArbitrumAddress = '0xcFa6ebD475d89dB04cAd5A756fff1cb2BC5bE33c'
 const tradingStoragePolyAddress = '0xaee4d11a16B2bc65EDD6416Fb626EB404a6D65BD'
 const apedMultiSig = process.env.APED_MULTISIG_ADD;
 
 const daiAbiPath = path.resolve(__dirname, "../contractABI/DAIcontract.json");
 const daiRawData = fs.readFileSync(daiAbiPath);
 const daiAbi = JSON.parse(daiRawData);
-const daiAddressArbitrum = '';
+const daiAddressArbitrum = '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1';
 const daiAddressPolygon = '';
 
 const openTradeGNSListener = async (account, network) => {
@@ -175,7 +176,12 @@ module.exports.openTradeGNS = async (
 
     // return the orderId
   } catch (error) {
-    console.log(error);
+    await errorLog.create({
+      error: error.message,
+      event: 'openTradeGNS',
+      timestamp: new Date()
+    })
+    console.log(error.message);
   }
 };
 
@@ -207,6 +213,12 @@ module.exports.closeTradeGNS = async (privateKey, pairIndex, tradeIndex, network
         return status;
       });
   } catch (error) {
+    await errorLog.create({
+      error: error.message,
+      event: 'closeTradeGNS',
+      timestamp: new Date()
+    })
+    console.log(error.message);
     return `Error closing GNS Trade: ${error}`;
   }
 };
@@ -223,6 +235,12 @@ module.exports.cancelLimitOrderGNS = async (privateKey, pairIndex, limitIndex) =
         return {status : "success"}
        }
      } catch(error) {
+      await errorLog.create({
+        error: error.message,
+        event: 'cancelLimitTradeGNS',
+        timestamp: new Date()
+      })
+      console.log(error.message);
       return `Error closing Limit Trade: ${error}`;
      }
 

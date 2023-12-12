@@ -1,4 +1,8 @@
 require("dotenv").config({ path: "../.env" });
+const { Sequelize } = require("sequelize");
+const sequelize = new Sequelize(process.env.DB_URL, {
+  dialect: "postgres", // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
+});
 const path = require("path");
 const axios = require('axios');
 const fs = require("fs");
@@ -6,6 +10,8 @@ const { Web3 } = require("web3");
 const { calculateFees } = require("./fees");
 const providerUrl = process.env.ARBITRUM_HTTP;
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
+
+const errorLog = require('../database/errorLog.model')(sequelize, Sequelize);
 
 const gmxabiPath = path.resolve(__dirname, "../contractABI/GMXRouter.json");
 const gmxrawData = fs.readFileSync(gmxabiPath);
@@ -128,7 +134,12 @@ module.exports.createPositionGMX = async (
           });
       });
   } catch (error) {
-    console.log(error);
+    await errorLog.create({
+      error: error.message,
+      event: 'openTradeGMX',
+      timestamp: new Date()
+    })
+    console.log(error.message);
   }
 };
 
@@ -163,7 +174,11 @@ module.exports.closePositionGMX = async (
         BigInt(180000000000000),
         false,
         "0x0000000000000000000000000000000000000000"
-      )
+      ).send({
+        from: account,
+        gasLimit: "5000000",
+        transactionBlockTimeout: 200,
+      })
       .on("receipt", (receipt) => {
         if (receipt.status == true) {
           return "success";
@@ -172,6 +187,11 @@ module.exports.closePositionGMX = async (
         }
       });
   } catch (error) {
-    console.log(error);
+    await errorLog.create({
+      error: error.message,
+      event: 'closeTradeGMX',
+      timestamp: new Date()
+    })
+    console.log(error.message);
   }
 };

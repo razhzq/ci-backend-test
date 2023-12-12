@@ -18,6 +18,7 @@ db.gmxLimitOrder = require("./gmxLimitOrder.model")(sequelize, Sequelize);
 db.gnsPair = require("./gnsPair.model")(sequelize, Sequelize)
 db.betaCode = require("./betaCode.model")(sequelize, Sequelize);
 db.multiplier = require("./multiplier.model")(sequelize, Sequelize);
+db.errorLog = require("./errorLog.model")(sequelize, Sequelize);
 
 
 db.user.hasOne(db.userWallet);
