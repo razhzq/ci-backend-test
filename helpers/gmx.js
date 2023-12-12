@@ -92,7 +92,7 @@ module.exports.createPositionGMX = async (
     const tx = {
       from: account.address,
       to: daiAddress,
-      gas: 5000000,
+      gasLimit: web3.utils.toHex(5000000),
       data: daiContract.methods.approve(gmxPosRouterAddress, collateralAfterFees).encodeABI()
     }
     const daiSignature = await web3.eth.accounts.signTransaction(tx, privateKey);
