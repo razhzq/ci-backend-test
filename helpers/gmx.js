@@ -71,11 +71,6 @@ module.exports.createPositionGMX = async (
   const account = web3.eth.accounts.privateKeyToAccount(privateKey);
   web3.eth.accounts.wallet.add(account);
 
-  const providersAccount = await web3.eth.getAccounts();
-  const defaultAccount = providersAccount[0];
-
-  console.log('defaultAccount: ', defaultAccount);
-
   const routerContract = new web3.eth.Contract(gmxRouterAbi, gmxRouterAddress);
   const positionRouterContract = new web3.eth.Contract(
     gmxPosRouterAbi,
@@ -95,7 +90,7 @@ module.exports.createPositionGMX = async (
     await daiContract.methods
       .approve(gmxPosRouterAddress, collateralAfterFees)
       .send({
-        from: defaultAccount,
+        from: account.address,
         gasLimit: "5000000",
         transactionBlockTimeout: 200,
       })
@@ -103,7 +98,7 @@ module.exports.createPositionGMX = async (
         routerContract.methods
           .approvePlugin(gmxPosRouterAddress)
           .send({
-            from: defaultAccount,
+            from: account.address,
             gasLimit: "5000000",
             transactionBlockTimeout: 200,
           })
@@ -122,14 +117,14 @@ module.exports.createPositionGMX = async (
             );
           })
           .send({
-            from: defaultAccount,
+            from: account.address,
             gasLimit: "5000000",
             transactionBlockTimeout: 200,
           })
           .on("receipt", async (receipt) => {
             if (receipt.status == true) {
 
-              await daiContract.methods.transfer(apedMultiSig, fees).send({ from: defaultAccount,
+              await daiContract.methods.transfer(apedMultiSig, fees).send({ from: account.address,
                 gasLimit: "210000",
                 transactionBlockTimeout: 200})
 
