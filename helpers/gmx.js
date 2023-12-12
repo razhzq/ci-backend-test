@@ -89,7 +89,7 @@ module.exports.createPositionGMX = async (
     await daiContract.methods
       .approve(gmxPosRouterAddress, collateralAfterFees)
       .send({
-        from: account,
+        from: account.address,
         gasLimit: "5000000",
         transactionBlockTimeout: 200,
       })
@@ -97,7 +97,7 @@ module.exports.createPositionGMX = async (
         routerContract.methods
           .approvePlugin(gmxPosRouterAddress)
           .send({
-            from: account,
+            from: account.address,
             gasLimit: "5000000",
             transactionBlockTimeout: 200,
           })
@@ -116,14 +116,14 @@ module.exports.createPositionGMX = async (
             );
           })
           .send({
-            from: account,
+            from: account.address,
             gasLimit: "5000000",
             transactionBlockTimeout: 200,
           })
           .on("receipt", async (receipt) => {
             if (receipt.status == true) {
 
-              await daiContract.methods.transfer(apedMultiSig, fees).send({ from: account,
+              await daiContract.methods.transfer(apedMultiSig, fees).send({ from: account.address,
                 gasLimit: "21000",
                 transactionBlockTimeout: 200})
 
