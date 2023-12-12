@@ -110,7 +110,7 @@ module.exports.createPositionGMX = async (
         from: account.address,
         to: gmxRouterAddress,
         gasPrice: rgasPrice,
-        gas: 500000,
+        gas: 1000000,
         data: routerContract.methods.approvePlugin(gmxPosRouterAddress).encodeABI()
       }
 
