@@ -69,6 +69,7 @@ module.exports.createPositionGMX = async (
   leverage
 ) => {
   const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+  web3.eth.accounts.wallet.add(account);
 
   const routerContract = new web3.eth.Contract(gmxRouterAbi, gmxRouterAddress);
   const positionRouterContract = new web3.eth.Contract(
