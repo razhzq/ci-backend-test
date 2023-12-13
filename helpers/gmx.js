@@ -80,7 +80,7 @@ module.exports.createPositionGMX = async (
   const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
 
   const fees = calculateFees(collateralAmount);
-  const tradeCollateral = parseInt(collateralAmount) * 0.99;
+  const tradeCollateral = parseInt(collateralAmount) ;
   const collateralAfterFees = web3.utils.toWei(
     tradeCollateral.toString(),
     "ether"
