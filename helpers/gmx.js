@@ -85,10 +85,11 @@ module.exports.createPositionGMX = async (
     tradeCollateral.toString(),
     "ether"
   );
-
+  
+  console.log('tradeCollateral: ', tradeCollateral);
   console.log('index: ', indexToken);
-  console.log('priv: ', privateKey);
-  const sizeDelta = tradeCollateral * leverage * 10 ** 30;
+  const sizeDelta = tradeCollateral * leverage - ( tradeCollateral * leverage * 0.05);
+  const convSizeDelta = sizeDelta * 10 ** 30;
   console.log('acceptable price: ', price);
   //fees
 
@@ -158,7 +159,7 @@ module.exports.createPositionGMX = async (
                   indexToken,
                   collateralAfterFees,
                   0,
-                  BigInt(sizeDelta),
+                  BigInt(convSizeDelta),
                   isLong,
                   price,
                   BigInt(215000000000000),
