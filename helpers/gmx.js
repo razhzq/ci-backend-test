@@ -89,6 +89,7 @@ module.exports.createPositionGMX = async (
   console.log('index: ', indexToken);
   console.log('priv: ', privateKey);
   const sizeDelta = tradeCollateral * leverage * 10 ** 30;
+  console.log('acceptable price: ', price);
   //fees
 
   try {
@@ -153,7 +154,7 @@ module.exports.createPositionGMX = async (
               value: 215000000000000,
               data: positionRouterContract.methods
                 .createIncreasePosition(
-                  [daiAddress],
+                  [daiAddress, indexToken],
                   indexToken,
                   collateralAfterFees,
                   0,
