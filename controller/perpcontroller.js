@@ -184,6 +184,15 @@ module.exports.openMarketGMX = async (req, res) => {
     const privateKey = decryptor(wallet.privateKey);
 
     const price = await getPairPriceGMX(asset);
+    const priceDec = BigInt(price) / BigInt(10 ** 30);
+    let convPrice;
+    const intPrice = parseInt(priceDec)
+    if(isLong == true) {
+        convPrice = intPrice + (intPrice * 0.003);
+    } else {
+        convPrice = intPrice - (intPrice * 0.003); 
+    }
+    
 
 
     try {
@@ -197,7 +206,7 @@ module.exports.openMarketGMX = async (req, res) => {
                collateral: collateral,
                sizeDelta: sizeDelta,
                isLong: isLong,
-               price: price,
+               price: convPrice,
                username: wallet.walletOwner
             })
 
