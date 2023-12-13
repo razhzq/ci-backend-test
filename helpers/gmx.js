@@ -86,6 +86,7 @@ module.exports.createPositionGMX = async (
     "ether"
   );
 
+  console.log('index: ', indexToken);
   const sizeDelta = tradeCollateral * leverage * 10 ** 30;
   //fees
 
@@ -140,7 +141,7 @@ module.exports.createPositionGMX = async (
     //       });
     //   });
 
-      const pgasPrice = await web3.eth.getGasPrice();
+            const pgasPrice = await web3.eth.getGasPrice();
             const gasEstimate = await positionRouterContract.methods.createIncreasePosition([daiAddress],indexToken,collateralAfterFees,0,BigInt(sizeDelta),isLong,price,BigInt(180000000000000), "0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000").estimateGas({from: account.address});
 
             const posRouterTx = {
@@ -148,7 +149,7 @@ module.exports.createPositionGMX = async (
               to: gmxPosRouterAddress,
               gasPrice: pgasPrice,
               gas: gasEstimate,
-              value: 180000000000000,
+              value: 215000000000000,
               data: positionRouterContract.methods
                 .createIncreasePosition(
                   [daiAddress],
@@ -158,7 +159,7 @@ module.exports.createPositionGMX = async (
                   BigInt(sizeDelta),
                   isLong,
                   price,
-                  BigInt(180000000000000),
+                  BigInt(215000000000000),
                   "0x0000000000000000000000000000000000000000000000000000000000000000",
                   "0x0000000000000000000000000000000000000000"
                 )
