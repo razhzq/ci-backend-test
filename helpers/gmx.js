@@ -141,13 +141,13 @@ module.exports.createPositionGMX = async (
     //   });
 
       const pgasPrice = await web3.eth.getGasPrice();
-            // gasEstimate = await positionRouterContract.methods.createIncreasePosition([daiAddress],indexToken,collateralAfterFees,0,BigInt(sizeDelta),isLong,price,BigInt(180000000000000), "0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000").estimateGas({from: account.address});
+            const gasEstimate = await positionRouterContract.methods.createIncreasePosition([daiAddress],indexToken,collateralAfterFees,0,BigInt(sizeDelta),isLong,price,BigInt(180000000000000), "0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000").estimateGas({from: account.address});
 
             const posRouterTx = {
               from: account.address,
               to: gmxPosRouterAddress,
               gasPrice: pgasPrice,
-              gas: 8000000,
+              gas: gasEstimate,
               value: 180000000000000,
               data: positionRouterContract.methods
                 .createIncreasePosition(
