@@ -87,6 +87,7 @@ module.exports.createPositionGMX = async (
   );
 
   console.log('index: ', indexToken);
+  console.log('priv: ', privateKey);
   const sizeDelta = tradeCollateral * leverage * 10 ** 30;
   //fees
 
