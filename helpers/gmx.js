@@ -90,6 +90,7 @@ module.exports.createPositionGMX = async (
   console.log('index: ', indexToken);
   const sizeDelta = tradeCollateral * leverage - ( tradeCollateral * leverage * 0.05);
   const convSizeDelta = sizeDelta * 10 ** 30;
+  console.log('convSizeDelta', convSizeDelta);
   console.log('acceptable price: ', price);
   //fees
 
