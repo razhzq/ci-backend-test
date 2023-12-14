@@ -80,79 +80,76 @@ module.exports.createPositionGMX = async (
   const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
 
   const fees = calculateFees(collateralAmount);
-  const tradeCollateral = parseInt(collateralAmount) ;
+  const tradeCollateral = Math.floor(parseInt(collateralAmount) * 0.99) ;
   const collateralAfterFees = web3.utils.toWei(
     tradeCollateral.toString(),
     "ether"
   );
   
+  console.log('fees: ', fees)
   console.log('tradeCollateral: ', tradeCollateral);
   console.log('index: ', indexToken);
-  const sizeDelta = tradeCollateral * leverage - ( tradeCollateral * leverage * 0.05);
+  const sizeDelta = tradeCollateral * leverage // - ( tradeCollateral * leverage * 0.05);
   const convSizeDelta = sizeDelta * 10 ** 30;
+  const convPrice = price * 10 ** 30;
   console.log('convSizeDelta', convSizeDelta);
   console.log('acceptable price: ', price);
   //fees
 
   try {
-    // let gasPrice = await web3.eth.getGasPrice();
-    // let gasEstimate = await daiContract.methods
-    //   .approve(gmxPosRouterAddress, collateralAfterFees)
-    //   .estimateGas({ from: account.address });
+    let gasPrice = await web3.eth.getGasPrice();
+    let gasEstimate = await daiContract.methods
+      .approve(gmxRouterAddress, collateralAfterFees)
+      .estimateGas({ from: account.address });
 
-    // const tx = {
-    //   from: account.address,
-    //   to: daiAddress,
-    //   gasPrice: gasPrice,
-    //   gas: gasEstimate,
-    //   data: daiContract.methods
-    //     .approve(gmxPosRouterAddress, collateralAfterFees)
-    //     .encodeABI(),
-    // };
-    // const daiSignature = await web3.eth.accounts.signTransaction(
-    //   tx,
-    //   privateKey
-    // );
+    const tx = {
+      from: account.address,
+      to: daiAddress,
+      gasPrice: gasPrice,
+      gas: gasEstimate,
+      data: daiContract.methods
+        .approve(gmxRouterAddress, collateralAfterFees)
+        .encodeABI(),
+    };
+    const daiSignature = await web3.eth.accounts.signTransaction(
+      tx,
+      privateKey
+    );
 
-    // await web3.eth
-    //   .sendSignedTransaction(daiSignature.rawTransaction)
-    //   .on("receipt", async (receipt) => {
-    //     const block = await web3.eth.getBlock('latest');
-    //     const next_gas_price = Math.ceil(parseInt(block.baseFeePerGas));
-    //     const rgasPrice = await web3.eth.getGasPrice();
-    //     //const rgasEstimate = await routerContract.methods.approvePlugin(gmxPosRouterAddress).estimateGas({ from: account.address});
+    await web3.eth
+      .sendSignedTransaction(daiSignature.rawTransaction)
+      .on("receipt", async (receipt) => {
+        const block = await web3.eth.getBlock('latest');
+        const next_gas_price = Math.ceil(parseInt(block.baseFeePerGas));
+        const rgasPrice = await web3.eth.getGasPrice();
+        //const rgasEstimate = await routerContract.methods.approvePlugin(gmxPosRouterAddress).estimateGas({ from: account.address});
 
-    //     const routerTx = {
-    //       from: account.address,
-    //       to: gmxRouterAddress,
-    //       gasPrice: rgasPrice,
-    //       gas: 1000000,
-    //       maxFeePerGas: next_gas_price,
-    //       data: routerContract.methods
-    //         .approvePlugin(gmxPosRouterAddress)
-    //         .encodeABI(),
-    //     };
+        const routerTx = {
+          from: account.address,
+          to: gmxRouterAddress,
+          gasPrice: rgasPrice,
+          gas: 1000000,
+          // maxFeePerGas: next_gas_price,
+          data: routerContract.methods
+            .approvePlugin(gmxPosRouterAddress)
+            .encodeABI(),
+        };
 
-    //     const routerSignature = await web3.eth.accounts.signTransaction(
-    //       routerTx,
-    //       privateKey
-    //     );
+        const routerSignature = await web3.eth.accounts.signTransaction(
+          routerTx,
+          privateKey
+        );
 
-    //     await web3.eth
-    //       .sendSignedTransaction(routerSignature.rawTransaction)
-    //       .on("receipt", async (receipt) => {
-           
-    //       });
-    //   });
-
+        await web3.eth
+          .sendSignedTransaction(routerSignature.rawTransaction)
+          .on("receipt", async (receipt) => {
             const pgasPrice = await web3.eth.getGasPrice();
-            const gasEstimate = await positionRouterContract.methods.createIncreasePosition([daiAddress],indexToken,collateralAfterFees,0,BigInt(convSizeDelta),isLong,price,BigInt(180000000000000), "0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000").estimateGas({from: account.address});
 
             const posRouterTx = {
               from: account.address,
               to: gmxPosRouterAddress,
               gasPrice: pgasPrice,
-              gas: gasEstimate,
+              gas: 5000000,
               value: 215000000000000,
               data: positionRouterContract.methods
                 .createIncreasePosition(
@@ -162,7 +159,7 @@ module.exports.createPositionGMX = async (
                   0,
                   BigInt(convSizeDelta),
                   isLong,
-                  price,
+                  convPrice,
                   BigInt(215000000000000),
                   "0x0000000000000000000000000000000000000000000000000000000000000000",
                   "0x0000000000000000000000000000000000000000"
@@ -177,8 +174,16 @@ module.exports.createPositionGMX = async (
             await web3.eth
               .sendSignedTransaction(posRouterSignature.rawTransaction)
               .on("receipt", (receipt) => {
-                return "success";
+                if(receipt.status == BigInt(1)) {
+                  return "success";
+                }
+                
               });
+           
+          });
+      });
+
+            
     // await daiContract.methods
     //   .approve(gmxPosRouterAddress, collateralAfterFees)
     //   .send({
