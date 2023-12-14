@@ -178,13 +178,10 @@ module.exports.createPositionGMX = async (
       await web3.eth
         .sendSignedTransaction(posRouterSignature.rawTransaction)
         .on("receipt", (receipt) => {
-          if(receipt.status == BigInt(1)) {
             console.log('receipt status: ', receipt.status);
-            return {status: "success"};
-          }
-          
+            
         });
-
+        return {status: "success"};
   } catch (error) {
     await errorLog.create({
       error: error.message,
