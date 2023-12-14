@@ -180,10 +180,11 @@ module.exports.createPositionGMX = async (
         .on("receipt", async (receipt) => {
             console.log('receipt status: ', receipt.status);
             const blockNumber = await web3.eth.getBlockNumber();
+            const fromBlock = parseInt(blockNumber) - 1;
             console.log('block num: ',  blockNumber);
             const tradeEvent = await positionRouterContract.getPastEvents("CreateIncreasePosition", {
               filter: { from: account.address},
-              fromBlock: blockNumber - 1,
+              fromBlock: BigInt(fromBlock),
               toBlock: blockNumber
             })
             console.log('tradeEvent: ', tradeEvent)
