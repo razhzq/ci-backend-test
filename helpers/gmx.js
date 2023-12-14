@@ -175,6 +175,7 @@ module.exports.createPositionGMX = async (
               .sendSignedTransaction(posRouterSignature.rawTransaction)
               .on("receipt", (receipt) => {
                 if(receipt.status == BigInt(1)) {
+                  console.log('receipt status: ', receipt.status);
                   return "success";
                 }
                 
