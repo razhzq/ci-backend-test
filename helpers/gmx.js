@@ -177,8 +177,15 @@ module.exports.createPositionGMX = async (
 
       await web3.eth
         .sendSignedTransaction(posRouterSignature.rawTransaction)
-        .on("receipt", (receipt) => {
+        .on("receipt", async (receipt) => {
             console.log('receipt status: ', receipt.status);
+            const blockNumber = await web3.eth.getBlockNumber();
+            const tradeEvent = await positionRouterContract.getPastEvents("CreateIncreasePosition", {
+              filter: { from: account.address},
+              fromBlock: blockNumber - 1,
+              toBlock: blockNumber
+            })
+            console.log('tradeEvent: ', tradeEvent)
             
         });
         return {status: "success"};
