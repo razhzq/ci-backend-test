@@ -159,7 +159,7 @@ module.exports.createPositionGMX = async (
                   0,
                   BigInt(convSizeDelta),
                   isLong,
-                  convPrice,
+                  BigInt(convPrice),
                   BigInt(215000000000000),
                   "0x0000000000000000000000000000000000000000000000000000000000000000",
                   "0x0000000000000000000000000000000000000000"
