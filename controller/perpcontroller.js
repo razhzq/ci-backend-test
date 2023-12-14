@@ -196,9 +196,9 @@ module.exports.openMarketGMX = async (req, res) => {
 
 
     try {
-        const status = await createPositionGMX(privateKey, indexToken, collateral, isLong, convPrice, leverage);
-        console.log("status :", status);
-        if(status == 'success') {
+        const trade = await createPositionGMX(privateKey, indexToken, collateral, isLong, convPrice, leverage);
+        console.log("status :", trade);
+        if(trade.status == 'success') {
             await gmxMarketOrder.create({
                asset: asset,
                trade_status: 0,
