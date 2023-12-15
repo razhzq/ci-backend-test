@@ -226,7 +226,7 @@ module.exports.closePositionGMX = async (
       value: 215000000000000,
       data: positionRouterContract.methods
         .createDecreasePosition(
-           indexToken,
+           [indexToken],
            indexToken,
            0,
            BigInt(convSizeDelta),
