@@ -307,9 +307,9 @@ module.exports.closeMarketGMX = async (req, res) => {
        let convPrice;
        const intPrice = parseInt(priceDec)
        if(isLong == true) {
-          convPrice = intPrice + (intPrice * 0.005);
+          convPrice = intPrice //+ (intPrice * 0.005);
        } else {
-          convPrice = intPrice - (intPrice * 0.005); 
+          convPrice = intPrice //- (intPrice * 0.005); 
        }
      
        try {
