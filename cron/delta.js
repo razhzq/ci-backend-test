@@ -36,8 +36,10 @@ async function calculateDeltaGMX() {
         const trades = await gmxMarketOrder.findAll({where: {trade_status: 0}});
         for(let i=0; i< trades.length; i++) {
             const currentPrice = await getPairPriceGMX(trades[i].asset);
+            const convCurrentPrice = BigInt(currentPrice) / BigInt(10 ** 30);
+            const currPrice = parseFloat(convCurrentPrice)
             const openPrice = trades[i].price;
-            const delta = ((currentPrice - openPrice) / openPrice) * trades[i].sizeDelta;
+            const delta = (currPrice - openPrice) * (trades[i].sizeDelta / openPrice);
             gmxMarketOrder.update({delta: delta}, {where: {id: trades[i].id}})
 
         }

@@ -17,6 +17,7 @@ const multiplier = require('../database/multiplier.model')(sequelize, Sequelize)
 //decryption
 const { getAssetFromGMXAddress, createPositionGMX, getPairPriceGMX, closePositionGMX } = require('../helpers/gmx');
 const { decryptor } = require('../helpers/decypter');
+const { calculateFees } = require('../helpers/fees');
 
 
 
@@ -177,8 +178,6 @@ module.exports.openMarketGMX = async (req, res) => {
     const multiply = await multiplier.findAll()
 
     const indexToken = getAssetFromGMXAddress(asset);
-    const sizeDelta = collateral * leverage;
-    const bananaPoints = (sizeDelta / 100) * multiply[0].pointsMultiplier ;
 
     const wallet = await userWallet.findOne({where: {publicKey: userAddress}});
     const privateKey = decryptor(wallet.privateKey);
@@ -186,12 +185,18 @@ module.exports.openMarketGMX = async (req, res) => {
     const price = await getPairPriceGMX(asset);
     const priceDec = BigInt(price) / BigInt(10 ** 30);
     let convPrice;
-    const intPrice = parseInt(priceDec)
+    const intPrice = parseInt(priceDec);
+    
+    const tradeCollateral = Math.floor(parseInt(collateral) * 0.99);
+
     if(isLong == true) {
         convPrice = intPrice + (intPrice * 0.005);
     } else {
         convPrice = intPrice - (intPrice * 0.005); 
     }
+
+     const sizeDelta = tradeCollateral * leverage;
+     const bananaPoints = (sizeDelta / 100) * multiply[0].pointsMultiplier ;
     
 
 
