@@ -178,16 +178,7 @@ module.exports.createPositionGMX = async (
       await web3.eth
         .sendSignedTransaction(posRouterSignature.rawTransaction)
         .on("receipt", async (receipt) => {
-            console.log('receipt status: ', receipt.status);
-            const blockNumber = await web3.eth.getBlockNumber();
-            const fromBlock = parseInt(blockNumber) - 1;
-            console.log('block num: ',  blockNumber);
-            const tradeEvent = await positionRouterContract.getPastEvents("CreateIncreasePosition", {
-              filter: { from: account.address},
-              fromBlock: BigInt(fromBlock),
-              toBlock: blockNumber
-            })
-            console.log('tradeEvent: ', tradeEvent)
+           console.log('logs: ',receipt.logs);
             
         });
         return {status: "success"};
@@ -219,40 +210,56 @@ module.exports.closePositionGMX = async (
   );
 
   const indexToken = this.getAssetFromGMXAddress(asset);
+  const convPrice = price * 10 ** 30; 
+  const convSizeDelta = sizeDelta * 10 ** 30;
+
 
   try {
-    await positionRouterContract.methods
-      .createDecreasePosition(
-        daiAddress,
-        indexToken,
-        collateral,
-        sizeDelta,
-        isLong,
-        receiver,
-        price,
-        0,
-        BigInt(180000000000000),
-        false,
-        "0x0000000000000000000000000000000000000000"
-      )
-      .send({
-        from: account,
-        gasLimit: "5000000",
-        transactionBlockTimeout: 200,
-      })
-      .on("receipt", (receipt) => {
-        if (receipt.status == true) {
-          return "success";
-        } else {
-          return "fail";
-        }
-      });
+
+    const gasPrice = await web3.eth.getGasPrice();
+
+    const tx = {
+      from: account.address,
+      to: gmxPosRouterAddress,
+      gasPrice: gasPrice,
+      gas: 5000000,
+      value: 215000000000000,
+      data: positionRouterContract.methods
+        .createDecreasePosition(
+           indexToken,
+           indexToken,
+           0,
+           BigInt(convSizeDelta),
+           isLong,
+           receiver,
+           BigInt(convPrice),
+           0,
+           BigInt(215000000000000),
+           false,
+           "0x0000000000000000000000000000000000000000"
+         ).encodeABI()
+    };
+
+    const posRouterSignature = await web3.eth.accounts.signTransaction(
+      tx,
+      privateKey
+    );
+
+    await web3.eth.sendSignedTransaction(posRouterSignature.rawTransaction)
+       .on("receipt", (receipt) => {
+
+       })
+    return { status: "success"}
+
+
+
   } catch (error) {
     await errorLog.create({
       error: error.message,
       event: "closeTradeGMX",
       timestamp: new Date(),
     });
-    console.log(error.message);
+    console.log(error);
+    return { status: "fail"}
   }
 };

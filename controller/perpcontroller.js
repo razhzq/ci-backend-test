@@ -197,20 +197,30 @@ module.exports.openMarketGMX = async (req, res) => {
 
     try {
         const trade = await createPositionGMX(privateKey, indexToken, collateral, isLong, convPrice, leverage);
+        const relatedTrades = await gmxMarketOrder.findAll({where: {username: wallet.walletOwner, asset: asset, trade_status: 0, isLong: isLong}});
         console.log("trade status :", trade);
         if(trade.status == 'success') {
-            await gmxMarketOrder.create({
-               asset: asset,
-               trade_status: 0,
-               indexToken: indexToken,
-               delta: 0,
-               collateral: collateral,
-               sizeDelta: sizeDelta,
-               isLong: isLong,
-               price: convPrice,
-               username: wallet.walletOwner
-            })
+            if(relatedTrades.length > 0) {
+                await gmxMarketOrder.update({
+                    collateral: relatedTrades[0].collateral + collateral,
+                    sizeDelta: relatedTrades[0].sizeDelta + sizeDelta,
+                },
+                {where: { id: relatedTrades[0].id }} 
+                )
+            } else {
+                await gmxMarketOrder.create({
+                    asset: asset,
+                    trade_status: 0,
+                    indexToken: indexToken,
+                    delta: 0,
+                    collateral: collateral,
+                    sizeDelta: sizeDelta,
+                    isLong: isLong,
+                    price: convPrice,
+                    username: wallet.walletOwner
+                 })
 
+            }
             await userData.update({points: bananaPoints}, {where: {username: wallet.walletOwner}});
             res.status(200).json({
                 status: 'success'
@@ -288,10 +298,18 @@ module.exports.closeMarketGMX = async (req, res) => {
        const privateKey = decryptor(wallet.privateKey);
 
        const price = await getPairPriceGMX(asset);
+       const priceDec = BigInt(price) / BigInt(10 ** 30);
+       let convPrice;
+       const intPrice = parseInt(priceDec)
+       if(isLong == true) {
+          convPrice = intPrice + (intPrice * 0.005);
+       } else {
+          convPrice = intPrice - (intPrice * 0.005); 
+       }
      
        try {
-        const status = await closePositionGMX(privateKey, asset, collateral, sizeDelta, isLong, wallet.publicKey, price );
-           if(status == 'success') {
+        const trade = await closePositionGMX(privateKey, asset, collateral, sizeDelta, isLong, wallet.publicKey, convPrice );
+           if(trade.status == 'success') {
             await gmxMarketOrder.update({trade_status: 1}, {where: {asset: asset, isLong: isLong, collateral: collateral, username: wallet.walletOwner}})
             res.status(200).json({
                 status: 'success'
