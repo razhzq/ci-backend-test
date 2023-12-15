@@ -38,8 +38,11 @@ module.exports.OpenMarketGNS = async (req, res) => {
     const positionSize = Web3.utils.toWei(collateral.toString(), 'ether');
     const price = await getGnsPairPrice(asset);
     const spreadPrice = price * 1.0005;
-    const convPrice = Web3.utils.toWei(spreadPrice.toString(), 'ether');
+    const convPrice = BigInt(spreadPrice) * BigInt(10 ** 10);
     const bananaPoints = ((collateral * leverage) / 100) * multiply[0].pointsMultiplier ;
+
+    const tpConv = BigInt * (10 ** 10);
+    const slConv = BigInt * (10 ** 10);
 
     const convLimitPrice = Web3.utils.toWei(limitPrice.toString(), 'ether');
 
@@ -65,7 +68,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
     try {
        
         if(orderType == 0) {
-            const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tp, sl, orderType);
+            const orderId = await openTradeGNS(privateKey, network, pair.pairId, positionSize, convPrice, isLong, leverage, tpConv, slConv, orderType);
             await gnsMarketOrder.create({
                 asset: asset,
                 trade_status: 0,

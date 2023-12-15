@@ -8,7 +8,7 @@ const gnsPair = require("../database/gnsPair.model")(sequelize, Sequelize);
 const errorLog = require("../database/errorLog.model")(sequelize, Sequelize);
 const path = require("path");
 const fs = require("fs");
-const { Web3 } = require("web3");
+const { Web3, eth } = require("web3");
 const { listeners } = require("process");
 const { calculateFees } = require("./fees");
 const providerUrl = process.env.ARBITRUM_HTTP;
@@ -109,26 +109,16 @@ module.exports.openTradeGNS = async (
   sl,
   orderType
 ) => {
-  let account;
-  let tradingContract;
-  let daiContract;
-  let tradingStorage;
 
-  if (network == "arbitrum") {
-    account = web3.eth.accounts.privateKeyToAccount(privateKey);
-    tradingContract = new web3.eth.Contract(tradingContractAbi, tradingContractArbitrumAddress);
-    daiContract = new web3.eth.Contract(daiAbi, daiAddressArbitrum);
-    tradingStorage = tradingStorageArbitrumAddress;
-  } else {
-    account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
-    tradingContract = new web3Polygon.eth.Contract(tradingContractAbi, tradingContractPolyAddress);
-    daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
-    tradingStorage = tradingStoragePolyAddress;
-  }
+  const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+  const tradingContract = new web3.eth.Contract(tradingContractAbi, tradingContractArbitrumAddress);
+  const daiContract = new web3.eth.Contract(daiAbi, daiAddressArbitrum);
+  const tradingStorage = tradingStorageArbitrumAddress;
+
   web3.eth.accounts.wallet.add(account);
   const collateral = web3.utils.fromWei(positionSizeDai, 'ether');
   const fees = calculateFees(collateral);
-  const tradeCollateral = parseInt(collateral) * 0.99;
+  const tradeCollateral = Math.floor(parseInt(collateral) * 0.99);
   const positionSizeAfterFees = web3.utils.toWei(tradeCollateral.toString(), 'ether');
 
   const tradeTuple = {
@@ -145,33 +135,59 @@ module.exports.openTradeGNS = async (
   };
 
   try {
-    await daiContract.methods
-      .approve(tradingStorage, "amount")
-      .send({
-        from: account,
-        gasLimit: "5000000",
-        transactionBlockTimeout: 200,
-      })
-      .then((transactionHash) => {
-        tradingContract.methods
+
+    const gasPrice = await web3.eth.getGasPrice();
+
+    const daiApproveTx = {
+      from: account.address,
+      to: daiAddressArbitrum,
+      gasPrice: gasPrice,
+      gas: 3000000,
+      data: daiContract.methods
+      .approve(tradingStorage, positionSizeAfterFees).encodeABI()
+    }
+
+    const daiApproveSignature = await web3.eth.accounts.signTransaction(
+      daiApproveTx,
+      privateKey
+    );
+
+    await web3.eth.sendSignedTransaction(daiApproveSignature.rawTransaction).on('receipt', async (receipt) => {
+
+        const tgasPrice = await web3.eth.getGasPrice();
+
+        const tradeTx = {
+          from: account.address,
+          to: tradingContractArbitrumAddress,
+          gasPrice: tgasPrice,
+          gas: 5000000,
+          data: tradingContract.methods
           .openTrade(
             tradeTuple,
             orderType,
             0,
             "30000000000",
             "0x0000000000000000000000000000000000000000"
-          )
-          .send({
-            from: account,
-            gasLimit: "5000000",
-            transactionBlockTimeout: 200,
-          });
-      });
-    await daiContract.methods.transfer(apedMultiSig, fees).send({from: account,
-                                                                 gasLimit: "5000000",
-                                                                 transactionBlockTimeout: 200, })
+          ).encodeABI()
+        }
+
+        const tradeSignature = await web3.eth.accounts.signTransaction(
+          tradeTx,
+          privateKey
+        )
+
+        await web3.eth.sendSignedTransaction(tradeSignature.rawTransaction).on('receipt', (receipt) => {
+            console.log('trade logs: ', receipt.logs);
+        })
+
+
+    })
+
+
+
+    
     // grab event logs MarketOrderInitiated
-    const orderId = await openTradeGNSListener(account, network);
+    const orderId = await openTradeGNSListener(account.address, network);
     return orderId;
 
     // return the orderId
@@ -181,7 +197,7 @@ module.exports.openTradeGNS = async (
       event: 'openTradeGNS',
       timestamp: new Date()
     })
-    console.log(error.message);
+    console.log(error);
   }
 };
 
