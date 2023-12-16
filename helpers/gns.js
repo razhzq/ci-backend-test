@@ -122,7 +122,7 @@ module.exports.openTradeGNS = async (
   const positionSizeAfterFees = web3Polygon.utils.toWei(tradeCollateral.toString(), 'ether');
 
   const tradeTuple = {
-    trader: account,
+    trader: account.address,
     pairIndex: pairIndex,
     index: 0,
     initialPostToken: 0,
