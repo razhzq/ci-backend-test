@@ -11,7 +11,7 @@ const fs = require("fs");
 const { Web3, eth } = require("web3");
 const { listeners } = require("process");
 const { calculateFees } = require("./fees");
-const providerUrl = process.env.POLYGON_HTTP;
+const providerUrl = process.env.ARBITRUM_HTTP;
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
 const polygonProvider = process.env.POLYGON_HTTP;
@@ -110,16 +110,16 @@ module.exports.openTradeGNS = async (
   orderType
 ) => {
 
-  const account = web3.eth.accounts.privateKeyToAccount(privateKey);
-  const tradingContract = new web3.eth.Contract(tradingContractAbi, tradingContractPolyAddress);
-  const daiContract = new web3.eth.Contract(daiAbi, daiAddressPolygon);
+  const account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
+  const tradingContract = new web3Polygon.eth.Contract(tradingContractAbi, tradingContractPolyAddress);
+  const daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
   const tradingStorage = tradingStoragePolyAddress;
 
-  web3.eth.accounts.wallet.add(account);
-  const collateral = web3.utils.fromWei(positionSizeDai, 'ether');
+
+  const collateral = web3Polygon.utils.fromWei(positionSizeDai, 'ether');
   const fees = calculateFees(collateral);
   const tradeCollateral = Math.floor(parseInt(collateral) * 0.99);
-  const positionSizeAfterFees = web3.utils.toWei(tradeCollateral.toString(), 'ether');
+  const positionSizeAfterFees = web3Polygon.utils.toWei(tradeCollateral.toString(), 'ether');
 
   const tradeTuple = {
     trader: account,
@@ -136,7 +136,7 @@ module.exports.openTradeGNS = async (
 
   try {
 
-    const gasPrice = await web3.eth.getGasPrice();
+    const gasPrice = await web3Polygon.eth.getGasPrice();
 
     const daiApproveTx = {
       from: account.address,
@@ -147,14 +147,14 @@ module.exports.openTradeGNS = async (
       .approve(tradingStorage, positionSizeAfterFees).encodeABI()
     }
 
-    const daiApproveSignature = await web3.eth.accounts.signTransaction(
+    const daiApproveSignature = await web3Polygon.eth.accounts.signTransaction(
       daiApproveTx,
       privateKey
     );
 
-    await web3.eth.sendSignedTransaction(daiApproveSignature.rawTransaction).on('receipt', async (receipt) => {
+    await web3Polygon.eth.sendSignedTransaction(daiApproveSignature.rawTransaction).on('receipt', async (receipt) => {
 
-        const tgasPrice = await web3.eth.getGasPrice();
+        const tgasPrice = await web3Polygon.eth.getGasPrice();
 
         const tradeTx = {
           from: account.address,
@@ -171,12 +171,12 @@ module.exports.openTradeGNS = async (
           ).encodeABI()
         }
 
-        const tradeSignature = await web3.eth.accounts.signTransaction(
+        const tradeSignature = await web3Polygon.eth.accounts.signTransaction(
           tradeTx,
           privateKey
         )
 
-        await web3.eth.sendSignedTransaction(tradeSignature.rawTransaction).on('receipt', (receipt) => {
+        await web3Polygon.eth.sendSignedTransaction(tradeSignature.rawTransaction).on('receipt', (receipt) => {
             console.log('trade logs: ', receipt.logs);
         })
 
