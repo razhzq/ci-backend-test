@@ -39,6 +39,8 @@ module.exports.OpenMarketGNS = async (req, res) => {
     const price = await getGnsPairPrice(asset);
     const spreadPrice = Math.floor(price * 1.0005);
     const convPrice = BigInt(spreadPrice * 10 ** 10);
+    console.log('spread price: ', spreadPrice);
+    console.log('conv Spread price: ', convPrice);
     const bananaPoints = ((collateral * leverage) / 100) * multiply[0].pointsMultiplier ;
 
     const tpConv = BigInt(tp * (10 ** 10));
