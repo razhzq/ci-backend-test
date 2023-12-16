@@ -43,8 +43,8 @@ module.exports.OpenMarketGNS = async (req, res) => {
     console.log('conv Spread price: ', convPrice);
     const bananaPoints = ((collateral * leverage) / 100) * multiply[0].pointsMultiplier ;
 
-    const tpConv = BigInt(tp * (10 ** 10));
-    const slConv = BigInt(sl * (10 ** 10));
+    const tpConv = BigInt(Math.floor(tp) * (10 ** 10));
+    const slConv = BigInt(Math.floor(sl) * (10 ** 10));
 
     const convLimitPrice = Web3.utils.toWei(limitPrice.toString(), 'ether');
 
