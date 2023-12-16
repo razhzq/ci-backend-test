@@ -38,11 +38,11 @@ module.exports.OpenMarketGNS = async (req, res) => {
     const positionSize = Web3.utils.toWei(collateral.toString(), 'ether');
     const price = await getGnsPairPrice(asset);
     const spreadPrice = price * 1.0005;
-    const convPrice = BigInt(spreadPrice) * BigInt(10 ** 10);
+    const convPrice = BigInt(spreadPrice * 10 ** 10);
     const bananaPoints = ((collateral * leverage) / 100) * multiply[0].pointsMultiplier ;
 
-    const tpConv = BigInt * (10 ** 10);
-    const slConv = BigInt * (10 ** 10);
+    const tpConv = BigInt(tp * (10 ** 10));
+    const slConv = BigInt(sl * (10 ** 10));
 
     const convLimitPrice = Web3.utils.toWei(limitPrice.toString(), 'ether');
 

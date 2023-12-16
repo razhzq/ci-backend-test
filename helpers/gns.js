@@ -11,7 +11,7 @@ const fs = require("fs");
 const { Web3, eth } = require("web3");
 const { listeners } = require("process");
 const { calculateFees } = require("./fees");
-const providerUrl = process.env.ARBITRUM_HTTP;
+const providerUrl = process.env.POLYGON_HTTP;
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
 const polygonProvider = process.env.POLYGON_HTTP;
@@ -37,7 +37,7 @@ const daiAbiPath = path.resolve(__dirname, "../contractABI/DAIcontract.json");
 const daiRawData = fs.readFileSync(daiAbiPath);
 const daiAbi = JSON.parse(daiRawData);
 const daiAddressArbitrum = '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1';
-const daiAddressPolygon = '';
+const daiAddressPolygon = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
 
 const openTradeGNSListener = async (account, network) => {
   //add contract listener to trading contract
@@ -111,9 +111,9 @@ module.exports.openTradeGNS = async (
 ) => {
 
   const account = web3.eth.accounts.privateKeyToAccount(privateKey);
-  const tradingContract = new web3.eth.Contract(tradingContractAbi, tradingContractArbitrumAddress);
-  const daiContract = new web3.eth.Contract(daiAbi, daiAddressArbitrum);
-  const tradingStorage = tradingStorageArbitrumAddress;
+  const tradingContract = new web3.eth.Contract(tradingContractAbi, tradingContractPolyAddress);
+  const daiContract = new web3.eth.Contract(daiAbi, daiAddressPolygon);
+  const tradingStorage = tradingStoragePolyAddress;
 
   web3.eth.accounts.wallet.add(account);
   const collateral = web3.utils.fromWei(positionSizeDai, 'ether');
@@ -140,7 +140,7 @@ module.exports.openTradeGNS = async (
 
     const daiApproveTx = {
       from: account.address,
-      to: daiAddressArbitrum,
+      to: daiAddressPolygon,
       gasPrice: gasPrice,
       gas: 3000000,
       data: daiContract.methods
@@ -158,7 +158,7 @@ module.exports.openTradeGNS = async (
 
         const tradeTx = {
           from: account.address,
-          to: tradingContractArbitrumAddress,
+          to: tradingContractPolyAddress,
           gasPrice: tgasPrice,
           gas: 5000000,
           data: tradingContract.methods
@@ -188,6 +188,7 @@ module.exports.openTradeGNS = async (
     
     // grab event logs MarketOrderInitiated
     const orderId = await openTradeGNSListener(account.address, network);
+    console.log('order id: ', orderId)
     return orderId;
 
     // return the orderId
