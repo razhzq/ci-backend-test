@@ -8,7 +8,7 @@ const gnsPair = require("../database/gnsPair.model")(sequelize, Sequelize);
 const errorLog = require("../database/errorLog.model")(sequelize, Sequelize);
 const path = require("path");
 const fs = require("fs");
-const { Web3, eth } = require("web3");
+const { Web3 } = require("web3");
 const { listeners } = require("process");
 const { calculateFees } = require("./fees");
 const providerUrl = process.env.ARBITRUM_HTTP;
@@ -27,51 +27,55 @@ const gnsTradingabiPath = path.resolve(
 );
 const gnsTradingrawData = fs.readFileSync(gnsTradingabiPath);
 const tradingContractAbi = JSON.parse(gnsTradingrawData);
-const tradingContractArbitrumAddress = '0x2c7e82641f03Fa077F88833213210A86027f15dc'
-const tradingContractPolyAddress = '0x6d91EDb04166251345071998Cf0Ce546Ae810E17'
-const tradingStorageArbitrumAddress = '0xcFa6ebD475d89dB04cAd5A756fff1cb2BC5bE33c'
-const tradingStoragePolyAddress = '0xaee4d11a16B2bc65EDD6416Fb626EB404a6D65BD'
+const tradingContractArbitrumAddress =
+  "0x2c7e82641f03Fa077F88833213210A86027f15dc";
+const tradingContractPolyAddress = "0xb0901FEaD3112f6CaF9353ec5c36DC3DdE111F61";
+const tradingStorageArbitrumAddress =
+  "0xcFa6ebD475d89dB04cAd5A756fff1cb2BC5bE33c";
+const tradingStoragePolyAddress = "0xaee4d11a16B2bc65EDD6416Fb626EB404a6D65BD";
 const apedMultiSig = process.env.APED_MULTISIG_ADD;
 
 const daiAbiPath = path.resolve(__dirname, "../contractABI/DAIcontract.json");
 const daiRawData = fs.readFileSync(daiAbiPath);
 const daiAbi = JSON.parse(daiRawData);
-const daiAddressArbitrum = '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1';
-const daiAddressPolygon = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
+const daiAddressArbitrum = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
+const daiAddressPolygon = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
 
 const openTradeGNSListener = async (account, network) => {
   //add contract listener to trading contract
   let tradingContract;
-  if(network == 'arbitrum') {
-    tradingContract = new web3.eth.Contract(tradingContractAbi, tradingContractArbitrumAddress);
+  if (network == "arbitrum") {
+    tradingContract = new web3.eth.Contract(
+      tradingContractAbi,
+      tradingContractArbitrumAddress
+    );
   } else {
-    tradingContract = new web3Polygon.eth.Contract(tradingContractAbi, tradingContractPolyAddress);
+    tradingContract = new web3Polygon.eth.Contract(
+      tradingContractAbi,
+      tradingContractPolyAddress
+    );
   }
-  
 
   //network
 
   listeners.forEach(async (listener) => {
     console.log(`Listening for events on contract ${contract}`);
-    contract.events.MarketOrderInitiated().on(
-      'data', async(event) => {
-        const eventData = event.returnValues;
-        if(eventData.trader == account.address) {
-          return eventData.orderId;
-        }
+    contract.events.MarketOrderInitiated().on("data", async (event) => {
+      const eventData = event.returnValues;
+      if (eventData.trader == account.address) {
+        return eventData.orderId;
       }
-    )
-
+    });
   });
 
   listeners.forEach(async (listener) => {
     console.log(`Listening for events on contract ${contract}`);
-    contract.events.OpenLimitPlaced().on('data', async(event) => {
+    contract.events.OpenLimitPlaced().on("data", async (event) => {
       const eventData = event.returnValues;
-      if(eventData.trader == account.address) {
+      if (eventData.trader == account.address) {
         return eventData.index;
       }
-    })
+    });
   });
 };
 
@@ -109,35 +113,32 @@ module.exports.openTradeGNS = async (
   sl,
   orderType
 ) => {
+  return new Promise(async (resolve, reject) => {
+    const account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
 
-  const account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
-  const tradingContract = new web3Polygon.eth.Contract(tradingContractAbi, tradingContractPolyAddress);
-  const daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
-  const tradingStorage = tradingStoragePolyAddress;
+    const tradingContract = new web3Polygon.eth.Contract(
+      tradingContractAbi,
+      tradingContractPolyAddress
+    );
+    const daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
+    const tradingStorage = tradingStoragePolyAddress;
 
+    //calculate collateral and fees
+    const collateral = web3Polygon.utils.fromWei(positionSizeDai, "ether");
+    const fees = calculateFees(collateral);
+    const tradeCollateral = (parseInt(collateral) * 0.99).toFixed(2);
+    const positionSizeAfterFees = web3Polygon.utils.toWei(
+      tradeCollateral,
+      "ether"
+    );
 
-  const collateral = web3Polygon.utils.fromWei(positionSizeDai, 'ether');
-  const fees = calculateFees(collateral);
-  const tradeCollateral = Math.floor(parseInt(collateral) * 0.99);
-  const positionSizeAfterFees = web3Polygon.utils.toWei(tradeCollateral.toString(), 'ether');
+    try {
 
-  const tradeTuple = {
-    trader: account.address,
-    pairIndex: pairIndex,
-    index: 0,
-    initialPostToken: 0,
-    positionSizeDai: positionSizeAfterFees,
-    openPrice: openPrice,
-    buy: isLong,
-    leverage: leverage,
-    tp: tp,
-    sl: sl,
-  };
-
-  try {
-
+    //approve DAI for trade functions
     const gasPrice = await web3Polygon.eth.getGasPrice();
-    const gasEstimate = await daiContract.methods.approve(tradingStorage, positionSizeAfterFees).estimateGas({from: account.address});
+    const gasEstimate = await daiContract.methods
+      .approve(tradingStorage, positionSizeAfterFees)
+      .estimateGas({ from: account.address });
 
     const daiApproveTx = {
       from: account.address,
@@ -145,65 +146,88 @@ module.exports.openTradeGNS = async (
       gasPrice: gasPrice,
       gas: gasEstimate,
       data: daiContract.methods
-      .approve(tradingStorage, positionSizeAfterFees).encodeABI()
-    }
+        .approve(tradingStorage, positionSizeAfterFees)
+        .encodeABI(),
+    };
 
     const daiApproveSignature = await web3Polygon.eth.accounts.signTransaction(
       daiApproveTx,
       privateKey
     );
 
-    await web3Polygon.eth.sendSignedTransaction(daiApproveSignature.rawTransaction).on('receipt', async (receipt) => {
-
+    await web3Polygon.eth
+      .sendSignedTransaction(daiApproveSignature.rawTransaction)
+      .on("receipt", async (receipt) => {
         const tgasPrice = await web3Polygon.eth.getGasPrice();
+
+        const tradeTuple = {
+          trader: account.address,
+          pairIndex: pairIndex,
+          index: 0,
+          initialPostToken: 0,
+          positionSizeDai: positionSizeAfterFees,
+          openPrice: openPrice,
+          buy: isLong,
+          leverage: leverage,
+          tp: tp,
+          sl: sl,
+        };
 
         const tradeTx = {
           from: account.address,
           to: tradingContractPolyAddress,
           gasPrice: tgasPrice,
-          gas: 5000000,
+          gas: 3000000,
           data: tradingContract.methods
-          .openTrade(
-            tradeTuple,
-            orderType,
-            0,
-            "30000000000",
-            "0x0000000000000000000000000000000000000000"
-          ).encodeABI()
-        }
+            .openTrade(
+              tradeTuple,
+              orderType,
+              "30000000000",
+              "0x0000000000000000000000000000000000000000"
+            )
+            .encodeABI(),
+        };
 
         const tradeSignature = await web3Polygon.eth.accounts.signTransaction(
           tradeTx,
           privateKey
-        )
+        );
 
-        await web3Polygon.eth.sendSignedTransaction(tradeSignature.rawTransaction).on('receipt', (receipt) => {
-            console.log('trade logs: ', receipt.logs);
-        })
+        await web3Polygon.eth
+          .sendSignedTransaction(tradeSignature.rawTransaction)
+          .on("receipt", (receipt) => {
+               const tradeLogs = receipt.logs;
+               var i = 0;
+               while(i < tradeLogs.length) {
+                    if(tradeLogs[i].address == "0xb0901fead3112f6caf9353ec5c36dc3dde111f61") {
+                       const topics = tradeLogs[i].topics;
+                       const hexOrderId = topics[1];
+                       const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
 
+                       resolve(orderId);
+                    }
+               }
+          });
+      });
+    } catch(error) {
+      await errorLog.create({
+        error: error.message,
+        event: "openTradeGNS",
+        timestamp: new Date(),
+      });
+      console.log(error);
+      reject(error.message);
+    }
 
-    })
-
-
-
-    
-    // grab event logs MarketOrderInitiated
-    const orderId = await openTradeGNSListener(account.address, network);
-    console.log('order id: ', orderId)
-    return orderId;
-
-    // return the orderId
-  } catch (error) {
-    await errorLog.create({
-      error: error.message,
-      event: 'openTradeGNS',
-      timestamp: new Date()
-    })
-    console.log(error);
-  }
+  }); // end of return promise
 };
 
-module.exports.closeTradeGNS = async (privateKey, pairIndex, tradeIndex, network) => {
+module.exports.closeTradeGNS = async (
+  privateKey,
+  pairIndex,
+  tradeIndex,
+  network
+) => {
   let account;
   let tradingContract;
   let daiContract;
@@ -233,35 +257,38 @@ module.exports.closeTradeGNS = async (privateKey, pairIndex, tradeIndex, network
   } catch (error) {
     await errorLog.create({
       error: error.message,
-      event: 'closeTradeGNS',
-      timestamp: new Date()
-    })
+      event: "closeTradeGNS",
+      timestamp: new Date(),
+    });
     console.log(error.message);
     return `Error closing GNS Trade: ${error}`;
   }
 };
 
-module.exports.cancelLimitOrderGNS = async (privateKey, pairIndex, limitIndex) => {
-     const account = web3.eth.accounts.privateKeyToAccount(privateKey);
-     const tradingContract = new web3.eth.Contract(tradingContractAbi, "");
-     web3.eth.accounts.wallet.add(account);
+module.exports.cancelLimitOrderGNS = async (
+  privateKey,
+  pairIndex,
+  limitIndex
+) => {
+  const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+  const tradingContract = new web3.eth.Contract(tradingContractAbi, "");
+  web3.eth.accounts.wallet.add(account);
 
-     try{
-       const receipt = await tradingContract.methods.cancelOpenLimitOrder(pairIndex, limitIndex).send({from: account});
- 
-       if(receipt.status == 1) {
-        return {status : "success"}
-       }
-     } catch(error) {
-      await errorLog.create({
-        error: error.message,
-        event: 'cancelLimitTradeGNS',
-        timestamp: new Date()
-      })
-      console.log(error.message);
-      return `Error closing Limit Trade: ${error}`;
-     }
+  try {
+    const receipt = await tradingContract.methods
+      .cancelOpenLimitOrder(pairIndex, limitIndex)
+      .send({ from: account });
 
-}
-
-
+    if (receipt.status == 1) {
+      return { status: "success" };
+    }
+  } catch (error) {
+    await errorLog.create({
+      error: error.message,
+      event: "cancelLimitTradeGNS",
+      timestamp: new Date(),
+    });
+    console.log(error.message);
+    return `Error closing Limit Trade: ${error}`;
+  }
+};
