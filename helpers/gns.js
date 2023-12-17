@@ -131,7 +131,9 @@ module.exports.openTradeGNS = async (
       "ether"
     );
 
-    console.log(tradeCollateral);
+    console.log('tradeCollateral: ', tradeCollateral);
+    console.log('positionSize: ', positionSizeAfterFees);
+
 
     try {
       //approve DAI for trade functions
