@@ -115,8 +115,7 @@ module.exports.openTradeGNS = async (
 ) => {
   return new Promise(async (resolve, reject) => {
 
-    const privKey = Buffer.from(privateKey, "hex");
-    const account = web3Polygon.eth.accounts.privateKeyToAccount(privKey);
+    const account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
 
     const tradingContract = new web3Polygon.eth.Contract(
       tradingContractAbi,
@@ -127,9 +126,9 @@ module.exports.openTradeGNS = async (
 
     //calculate collateral and fees
     const fees = calculateFees(collateral);
-    const tradeCollateral = Math.floor(collateral * 0.99);
+    const tradeCollateral = (collateral * 0.99);
     const positionSizeAfterFees = web3Polygon.utils.toWei(
-      tradeCollateral,
+      tradeCollateral.toString(),
       "ether"
     );
 
@@ -144,6 +143,9 @@ module.exports.openTradeGNS = async (
         .approve(tradingStorage, positionSizeAfterFees)
         .estimateGas({ from: account.address });
 
+      console.log('gasPrice: ', gasPrice);
+      console.log('gasEstimate: ', gasEstimate);
+
       const daiApproveTx = {
         from: account.address,
         to: daiAddressPolygon,
@@ -157,7 +159,7 @@ module.exports.openTradeGNS = async (
       const daiApproveSignature =
         await web3Polygon.eth.accounts.signTransaction(
           daiApproveTx,
-          privKey
+          privateKey
         );
 
       await web3Polygon.eth
