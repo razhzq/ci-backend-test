@@ -130,7 +130,7 @@ module.exports.openTradeGNS = async (
             trader: account.address,
             pairIndex: pairIndex,
             index: 0,
-            initialPostToken: 0,
+            initialPosToken: 0,
             positionSizeDai: positionSizeAfterFees,
             openPrice: openPrice,
             buy: isLong,
@@ -147,7 +147,7 @@ module.exports.openTradeGNS = async (
               .openTrade(
                 tradeTuple,
                 orderType,
-                "30000000000",
+                30000000000,
                 "0x0000000000000000000000000000000000000000"
               )
               .encodeABI(),
