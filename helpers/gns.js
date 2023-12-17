@@ -9,8 +9,8 @@ const errorLog = require("../database/errorLog.model")(sequelize, Sequelize);
 const path = require("path");
 const fs = require("fs");
 const { Web3 } = require("web3");
-const { listeners } = require("process");
 const { calculateFees } = require("./fees");
+
 const providerUrl = process.env.ARBITRUM_HTTP;
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
@@ -40,44 +40,6 @@ const daiRawData = fs.readFileSync(daiAbiPath);
 const daiAbi = JSON.parse(daiRawData);
 const daiAddressArbitrum = "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1";
 const daiAddressPolygon = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
-
-const openTradeGNSListener = async (account, network) => {
-  //add contract listener to trading contract
-  let tradingContract;
-  if (network == "arbitrum") {
-    tradingContract = new web3.eth.Contract(
-      tradingContractAbi,
-      tradingContractArbitrumAddress
-    );
-  } else {
-    tradingContract = new web3Polygon.eth.Contract(
-      tradingContractAbi,
-      tradingContractPolyAddress
-    );
-  }
-
-  //network
-
-  listeners.forEach(async (listener) => {
-    console.log(`Listening for events on contract ${contract}`);
-    contract.events.MarketOrderInitiated().on("data", async (event) => {
-      const eventData = event.returnValues;
-      if (eventData.trader == account.address) {
-        return eventData.orderId;
-      }
-    });
-  });
-
-  listeners.forEach(async (listener) => {
-    console.log(`Listening for events on contract ${contract}`);
-    contract.events.OpenLimitPlaced().on("data", async (event) => {
-      const eventData = event.returnValues;
-      if (eventData.trader == account.address) {
-        return eventData.index;
-      }
-    });
-  });
-};
 
 module.exports.getGnsPairPrice = async (asset) => {
   const pair = await gnsPair.findOne({ where: { pairName: asset } });
@@ -114,7 +76,6 @@ module.exports.openTradeGNS = async (
   orderType
 ) => {
   return new Promise(async (resolve, reject) => {
-
     const account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
 
     const tradingContract = new web3Polygon.eth.Contract(
@@ -126,15 +87,14 @@ module.exports.openTradeGNS = async (
 
     //calculate collateral and fees
     const fees = calculateFees(collateral);
-    const tradeCollateral = (collateral * 0.99);
+    const tradeCollateral = collateral * 0.99;
     const positionSizeAfterFees = web3Polygon.utils.toWei(
       tradeCollateral.toString(),
       "ether"
     );
 
-    console.log('tradeCollateral: ', tradeCollateral);
-    console.log('positionSize: ', positionSizeAfterFees);
-
+    console.log("tradeCollateral: ", tradeCollateral);
+    console.log("positionSize: ", positionSizeAfterFees);
 
     try {
       //approve DAI for trade functions
@@ -143,8 +103,8 @@ module.exports.openTradeGNS = async (
         .approve(tradingStorage, positionSizeAfterFees)
         .estimateGas({ from: account.address });
 
-      console.log('gasPrice: ', gasPrice);
-      console.log('gasEstimate: ', gasEstimate);
+      console.log("gasPrice: ", gasPrice);
+      console.log("gasEstimate: ", gasEstimate);
 
       const daiApproveTx = {
         from: account.address,
@@ -165,51 +125,52 @@ module.exports.openTradeGNS = async (
       await web3Polygon.eth
         .sendSignedTransaction(daiApproveSignature.rawTransaction)
         .on("receipt", async (receipt) => {
-          // const tgasPrice = await web3Polygon.eth.getGasPrice();
-          // const tradeTuple = {
-          //   trader: account.address,
-          //   pairIndex: pairIndex,
-          //   index: 0,
-          //   initialPostToken: 0,
-          //   positionSizeDai: positionSizeAfterFees,
-          //   openPrice: openPrice,
-          //   buy: isLong,
-          //   leverage: leverage,
-          //   tp: tp,
-          //   sl: sl,
-          // };
-          // const tradeTx = {
-          //   from: account.address,
-          //   to: tradingContractPolyAddress,
-          //   gasPrice: tgasPrice,
-          //   gas: 3000000,
-          //   data: tradingContract.methods
-          //     .openTrade(
-          //       tradeTuple,
-          //       orderType,
-          //       "30000000000",
-          //       "0x0000000000000000000000000000000000000000"
-          //     )
-          //     .encodeABI(),
-          // };
-          // const tradeSignature = await web3Polygon.eth.accounts.signTransaction(
-          //   tradeTx,
-          //   privateKey
-          // );
-          // await web3Polygon.eth
-          //   .sendSignedTransaction(tradeSignature.rawTransaction)
-          //   .on("receipt", (receipt) => {
-          //        const tradeLogs = receipt.logs;
-          //        var i = 0;
-          //        while(i < tradeLogs.length) {
-          //             if(tradeLogs[i].address == "0xb0901fead3112f6caf9353ec5c36dc3dde111f61") {
-          //                const topics = tradeLogs[i].topics;
-          //                const hexOrderId = topics[1];
-          //                const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
-          //                resolve(orderId);
-          //             }
-          //        }
-          //   });
+          const tgasPrice = await web3Polygon.eth.getGasPrice();
+          const tradeTuple = {
+            trader: account.address,
+            pairIndex: pairIndex,
+            index: 0,
+            initialPostToken: 0,
+            positionSizeDai: positionSizeAfterFees,
+            openPrice: openPrice,
+            buy: isLong,
+            leverage: leverage,
+            tp: tp,
+            sl: sl,
+          };
+          const tradeTx = {
+            from: account.address,
+            to: tradingContractPolyAddress,
+            gasPrice: tgasPrice,
+            gas: 3000000,
+            data: tradingContract.methods
+              .openTrade(
+                tradeTuple,
+                orderType,
+                "30000000000",
+                "0x0000000000000000000000000000000000000000"
+              )
+              .encodeABI(),
+          };
+          const tradeSignature = await web3Polygon.eth.accounts.signTransaction(
+            tradeTx,
+            privateKey
+          );
+          await web3Polygon.eth
+            .sendSignedTransaction(tradeSignature.rawTransaction)
+            .on("receipt", (receipt) => {
+                 const tradeLogs = receipt.logs;
+                 var i = 0;
+                 while(i < tradeLogs.length) {
+                      if(tradeLogs[i].address == "0xb0901fead3112f6caf9353ec5c36dc3dde111f61") {
+                         const topics = tradeLogs[i].topics;
+                         const hexOrderId = topics[1];
+                         const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
+                         console.log('orderId: ', orderId)
+                         resolve(orderId);
+                      }
+                 }
+            });
         });
     } catch (error) {
       await errorLog.create({
