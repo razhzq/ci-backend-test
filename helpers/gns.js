@@ -114,7 +114,9 @@ module.exports.openTradeGNS = async (
   orderType
 ) => {
   return new Promise(async (resolve, reject) => {
-    const account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
+
+    const privKey = Buffer.from(privateKey, "hex");
+    const account = web3Polygon.eth.accounts.privateKeyToAccount(privKey);
 
     const tradingContract = new web3Polygon.eth.Contract(
       tradingContractAbi,
@@ -155,7 +157,7 @@ module.exports.openTradeGNS = async (
       const daiApproveSignature =
         await web3Polygon.eth.accounts.signTransaction(
           daiApproveTx,
-          privateKey
+          privKey
         );
 
       await web3Polygon.eth
