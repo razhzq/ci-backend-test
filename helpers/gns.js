@@ -126,7 +126,7 @@ module.exports.openTradeGNS = async (
     //calculate collateral and fees
     const collateral = web3Polygon.utils.fromWei(positionSizeDai, "ether");
     const fees = calculateFees(collateral);
-    const tradeCollateral = (parseInt(collateral) * 0.99).toFixed(2);
+    const tradeCollateral = Math.floor(parseFloat(collateral) * 0.99);
     const positionSizeAfterFees = web3Polygon.utils.toWei(
       tradeCollateral,
       "ether"
