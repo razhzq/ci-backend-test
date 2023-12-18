@@ -160,7 +160,8 @@ module.exports.openTradeGNS = async (
             .sendSignedTransaction(tradeSignature.rawTransaction)
             .on("receipt", (receipt) => {
                  const tradeLogs = receipt.logs;
-                 for(let i =0; i < tradeLogs.length; i++) {
+                 var i = 0;
+                 while(i < tradeLogs.length) {
                       if(tradeLogs[i].address == "0xb0901fead3112f6caf9353ec5c36dc3dde111f61") {
                          const topics = tradeLogs[i].topics;
                          const hexOrderId = topics[1];
@@ -168,6 +169,7 @@ module.exports.openTradeGNS = async (
                          console.log('orderId: ', orderId)
                          resolve(orderId);
                       }
+                      i++;
                  }
             });
         });
