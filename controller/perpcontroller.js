@@ -71,15 +71,19 @@ module.exports.OpenMarketGNS = async (req, res) => {
 
   const privateKey = decryptor(wallet.privateKey);
   const price = await getGnsPairPrice(asset);
-  const spreadPrice = Math.floor(price * 1.0005);
+  const spreadPrice = price * 1.0005;
   const convPrice = BigInt(spreadPrice * 10 ** 10);
   console.log("spread price: ", spreadPrice);
   console.log("conv Spread price: ", convPrice);
   const bananaPoints =
     ((collateral * leverage) / 100) * multiply[0].pointsMultiplier;
 
+
   const tpConv = BigInt(Math.floor(tp) * 10 ** 10);
   const slConv = BigInt(Math.floor(sl) * 10 ** 10);
+
+  console.log('tp: ', tpConv);
+  console.log('sl: ', slConv);
 
   const convLimitPrice = Web3.utils.toWei(limitPrice.toString(), "ether");
 
