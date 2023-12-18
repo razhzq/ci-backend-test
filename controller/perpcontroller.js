@@ -79,8 +79,8 @@ module.exports.OpenMarketGNS = async (req, res) => {
     ((collateral * leverage) / 100) * multiply[0].pointsMultiplier;
 
 
-  const tpConv = BigInt((tp).toFixed(2) * 10 ** 10);
-  const slConv = BigInt((sl).toFixed(2) * 10 ** 10);
+  const tpConv = BigInt((tp) * 10 ** 10);
+  const slConv = BigInt((sl) * 10 ** 10);
 
   console.log('tp: ', tpConv);
   console.log('sl: ', slConv);
