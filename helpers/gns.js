@@ -159,18 +159,21 @@ module.exports.openTradeGNS = async (
           await web3Polygon.eth
             .sendSignedTransaction(tradeSignature.rawTransaction)
             .on("receipt", (receipt) => {
-                 const tradeLogs = receipt.logs;
-                 var i = 0;
-                 while(i < tradeLogs.length) {
-                      if(tradeLogs[i].address == "0xb0901fead3112f6caf9353ec5c36dc3dde111f61") {
-                         const topics = tradeLogs[i].topics;
-                         const hexOrderId = topics[1];
-                         const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
-                         console.log('orderId: ', orderId)
-                         resolve(orderId);
-                      }
-                      i++;
-                 }
+              const tradeLogs = receipt.logs;
+              var i = 0;
+              while (i < tradeLogs.length) {
+                if (
+                  tradeLogs[i].address ==
+                  "0xb0901fead3112f6caf9353ec5c36dc3dde111f61"
+                ) {
+                  const topics = tradeLogs[i].topics;
+                  const hexOrderId = topics[1];
+                  const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
+                  console.log("orderId: ", orderId);
+                  resolve(orderId);
+                }
+                i++;
+              }
             });
         });
     } catch (error) {
@@ -191,41 +194,56 @@ module.exports.closeTradeGNS = async (
   tradeIndex,
   network
 ) => {
-  let account;
-  let tradingContract;
-  let daiContract;
-  let tradingStorageAddress;
-  let status;
-  if (network == "arbitrum") {
-    account = web3.eth.accounts.privateKeyToAccount(privateKey);
-    tradingContract = new web3.eth.Contract(tradingContractAbi, "");
-    daiContract = new web3.eth.Contract(daiAbi, "");
-    tradingStorageAddress = "";
-  } else {
-    account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
-    tradingContract = new web3Polygon.eth.Contract(tradingContractAbi, "");
-    daiContract = new web3Polygon.eth.Contract(daiAbi, "");
-    tradingStorageAddress = "";
-  }
-  web3.eth.accounts.wallet.add(account);
+  return new Promise(async (resolve, reject) => {
+    let account;
+    let tradingContract;
+    let daiContract;
+    let tradingStorageAddress;
+    let status;
 
-  try {
-    await tradingContract.methods
-      .closeTradeMarket(pairIndex, tradeIndex)
-      .send({ from: account })
-      .on("transactionHash", () => {
-        status = "success";
-        return status;
+    account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
+    tradingContract = new web3Polygon.eth.Contract(
+      tradingContractAbi,
+      tradingContractPolyAddress
+    );
+    daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
+    tradingStorageAddress = tradingStoragePolyAddress;
+
+    try {
+      const gasPrice = await web3Polygon.eth.getGasPrice();
+      const gasEstimate = await tradingContract.methods
+        .closeTradeMarket(pairIndex, tradeIndex)
+        .estimateGas({ from: account.address });
+
+      const tx = {
+        from: account.address,
+        to: tradingContractPolyAddress,
+        gasPrice: gasPrice,
+        gasEstimate: gasEstimate,
+        data: tradingContract.methods
+          .closeTradeMarket(pairIndex, tradeIndex)
+          .encodeABI(),
+      };
+
+      const signature = await web3Polygon.eth.accounts
+        .signTransaction(
+          tx,
+          privateKey
+        )
+        await web3Polygon.eth.sendSignedTransaction(signature.rawTransaction)
+        .on("receipt", async (receipt) => {
+            resolve("success");
+        });
+    } catch (error) {
+      await errorLog.create({
+        error: error.message,
+        event: "closeTradeGNS",
+        timestamp: new Date(),
       });
-  } catch (error) {
-    await errorLog.create({
-      error: error.message,
-      event: "closeTradeGNS",
-      timestamp: new Date(),
-    });
-    console.log(error.message);
-    return `Error closing GNS Trade: ${error}`;
-  }
+      console.log(error);
+      reject(error.message);
+    }
+  });
 };
 
 module.exports.cancelLimitOrderGNS = async (
