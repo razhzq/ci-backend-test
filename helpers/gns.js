@@ -230,10 +230,10 @@ module.exports.closeTradeGNS = async (
           tx,
           privateKey
         )
-        await web3Polygon.eth.sendSignedTransaction(signature.rawTransaction)
-        .on("receipt", async (receipt) => {
-            resolve("success");
-        });
+        // await web3Polygon.eth.sendSignedTransaction(signature.rawTransaction)
+        // .on("receipt", async (receipt) => {
+        //     resolve("success");
+        // });
     } catch (error) {
       await errorLog.create({
         error: error.message,
