@@ -154,8 +154,9 @@ async function main() {
   }
 
 async function test() {
-    const orderId = await main();
-    console.log('test orderid: ', orderId);
+    const num = 407.23;
+    const numDec = num * (10 ** 10);
+    console.log(numDec);
 }
 
 

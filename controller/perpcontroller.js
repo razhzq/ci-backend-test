@@ -80,7 +80,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
 
 
   const tpConv = BigInt((tp) * 10 ** 10);
-  const slConv = BigInt((sl) * 10 ** 10);
+  const slConv = BigInt((sl) * 10 ** 10);  
 
   console.log('tp: ', tpConv);
   console.log('sl: ', slConv);
