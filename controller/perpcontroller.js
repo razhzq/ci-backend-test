@@ -156,8 +156,8 @@ module.exports.OpenMarketGNS = async (req, res) => {
         convLimitPrice,
         isLong,
         leverage,
-        tp,
-        sl,
+        tpConv,
+        slConv,
         orderType
       );
       await gnsLimitOrder.create({
