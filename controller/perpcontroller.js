@@ -152,7 +152,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
         privateKey,
         network,
         pair.pairId,
-        positionSize,
+        collateral,
         convLimitPrice,
         isLong,
         leverage,
