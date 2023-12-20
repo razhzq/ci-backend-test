@@ -214,15 +214,15 @@ module.exports.closeTradeGNS = async (
 
     try {
       const gasPrice = await web3Polygon.eth.getGasPrice();
-      const gasEstimate = await tradingContract.methods
-        .closeTradeMarket(pairIndex, tradeIndex)
-        .estimateGas({ from: account.address });
+      // const gasEstimate = await tradingContract.methods
+      //   .closeTradeMarket(pairIndex, tradeIndex)
+      //   .estimateGas({ from: account.address });
 
       const tx = {
         from: account.address,
         to: tradingContractPolyAddress,
         gasPrice: gasPrice,
-        gasEstimate: gasEstimate,
+        gas: 3000000,
         data: tradingContract.methods
           .closeTradeMarket(pairIndex, tradeIndex)
           .encodeABI(),
@@ -233,10 +233,10 @@ module.exports.closeTradeGNS = async (
           tx,
           privateKey
         )
-        // await web3Polygon.eth.sendSignedTransaction(signature.rawTransaction)
-        // .on("receipt", async (receipt) => {
-        //     resolve("success");
-        // });
+        await web3Polygon.eth.sendSignedTransaction(signature.rawTransaction)
+        .on("receipt", async (receipt) => {
+            resolve("success");
+        });
     } catch (error) {
       await errorLog.create({
         error: error.message,
