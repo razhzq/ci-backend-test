@@ -128,7 +128,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
         price: spreadPrice,
         collateral: collateral,
         delta: 0,
-        tradeIndex: 0,
+        tradeIndex: tradeIndex,
         orderId: orderId, // change to orderId when back to production
         isLong: isLong,
         leverage: leverage,

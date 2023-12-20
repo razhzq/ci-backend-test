@@ -184,5 +184,5 @@ module.exports.getDAIBalance = async (req, res) => {
           res.status(400).json({
             error: 'error getting DAI balance'
           })
-      }
+      } 
 }

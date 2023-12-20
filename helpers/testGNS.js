@@ -154,9 +154,8 @@ async function main() {
   }
 
 async function test() {
-    const num = 407.23;
-    const numDec = num * (10 ** 10);
-    console.log(numDec);
+    const num = parseFloat(BigInt(1200000)) / (10 ** 6);
+    console.log(num);
 }
 
 

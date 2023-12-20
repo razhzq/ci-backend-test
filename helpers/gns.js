@@ -201,6 +201,9 @@ module.exports.closeTradeGNS = async (
     let tradingStorageAddress;
     let status;
 
+    console.log('pairIndex: ', pairIndex);
+    console.log('tradeIndex: ', tradeIndex);
+
     account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
     tradingContract = new web3Polygon.eth.Contract(
       tradingContractAbi,
