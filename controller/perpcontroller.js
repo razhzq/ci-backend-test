@@ -85,7 +85,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
   console.log('tp: ', tpConv);
   console.log('sl: ', slConv);
 
-  const convLimitPrice = Web3.utils.toWei(limitPrice.toString(), "ether");
+  const convLimitPrice = BigInt(limitPrice.toFixed(2) * (10 ** 10));
 
   //check tradeindex
   if (orderType == 0) {
@@ -99,7 +99,10 @@ module.exports.OpenMarketGNS = async (req, res) => {
   }
 
   while (tradeTotal.length == 3) {
-    res.status(400).json("Max trades per pair reached!");
+    res.status(200).json({
+      status: false,
+      msg: 'MAX'
+    });
   }
 
   if (tradeTotal.length == 0) {
