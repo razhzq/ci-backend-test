@@ -176,7 +176,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
+    console.log(error);
     res.status(400).json({
       trade_status: error,
     });
