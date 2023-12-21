@@ -43,9 +43,10 @@ async function callbackGNSPolygonEvent() {
 
             if(existingUser) {
                 console.log('limit executed on user: ', existingUser.walletOwner);
+                console.log('limit events: ', eventData);
                 if(orderType == 3) {
                     const limitIndex = parseInt(eventData.limitIndex);
-                    const pairIndex = parseInt(eventData.pairIndex);
+                    const pairIndex = parseInt(eventTuple.pairIndex);
                     const pair = await gnsPair.findOne({where: {pairId: pairIndex}});
                     const multiply = await multiplier.findAll();
 
