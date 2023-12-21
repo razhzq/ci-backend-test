@@ -2,6 +2,7 @@ require("dotenv").config({ path: "../.env" });
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize(process.env.DB_URL, {
   dialect: "postgres", // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
+  logging: false
 });
 
 const gnsPair = require("../database/gnsPair.model")(sequelize, Sequelize);
