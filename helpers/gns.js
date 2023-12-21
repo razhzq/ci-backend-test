@@ -165,12 +165,18 @@ module.exports.openTradeGNS = async (
                 if (
                   tradeLogs[i].address ==
                   "0xb0901fead3112f6caf9353ec5c36dc3dde111f61"
-                ) {
-                  const topics = tradeLogs[i].topics;
-                  const hexOrderId = topics[1];
-                  const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
-                  console.log("orderId: ", orderId);
-                  resolve(orderId);
+                ) { 
+                  if(orderType == 0) {
+                    const topics = tradeLogs[i].topics;
+                    const hexOrderId = topics[1];
+                    const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
+                    console.log("orderId: ", orderId);
+                    resolve(orderId);
+                  } else {
+                    console.log(tradeLogs[i]);
+
+                  }
+                 
                 }
                 i++;
               }
