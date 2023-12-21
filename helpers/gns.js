@@ -173,8 +173,9 @@ module.exports.openTradeGNS = async (
                     console.log("orderId: ", orderId);
                     resolve(orderId);
                   } else {
-                    console.log(tradeLogs[i]);
-
+                    const data = tradeLogs[i].data;
+                    const limitTradeIndex = web3Polygon.utils.hexToNumber(data);
+                    resolve(limitTradeIndex);
                   }
                  
                 }

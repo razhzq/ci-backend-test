@@ -4,6 +4,7 @@ const { getGnsPairPrice } = require('../helpers/gns');
 const { getPairPriceGMX } = require('../helpers/gmx');
 const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
+    logging: false
   })
 
   var cron = require('node-cron');

@@ -3,6 +3,7 @@ const {Sequelize} = require('sequelize');
 const { getPairPriceGMX } = require('../helpers/gmx');
 const sequelize = new Sequelize(process.env.DB_URL, {
     dialect: 'postgres', // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
+    logging: false
   })
 const io = require('socket.io-client')
 const socket = io(process.env.SOCKET_URL);

@@ -2,6 +2,7 @@ require("dotenv").config({ path: "../.env" });
 const { Sequelize } = require("sequelize");
 const sequelize = new Sequelize(process.env.DB_URL, {
   dialect: "postgres", // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
+  logging: false
 });
 const {
   openTradeGNS,
@@ -148,7 +149,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
         trade_status: "success",
       });
     } else {
-      const tradeIndex = await openTradeGNS(
+      const limitTradeIndex = await openTradeGNS(
         privateKey,
         network,
         pair.pairId,
@@ -165,7 +166,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
         price: limitPrice,
         collateral: collateral,
         delta: 0,
-        tradeIndex: tradeIndex, // tradeIndex,
+        tradeIndex: limitTradeIndex, // tradeIndex,
         isLong: isLong,
         leverage: leverage,
         network: network,
