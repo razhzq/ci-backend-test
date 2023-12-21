@@ -50,7 +50,7 @@ async function callbackGNSPolygonEvent() {
                     const pair = await gnsPair.findOne({where: {pairId: pairIndex}});
                     const multiply = await multiplier.findAll();
 
-                    const limitTrade = await gnsLimitOrder.findOne({where: {username: existingUser.walletOwner, tradeIndex: limitIndex, asset: pair.pairName, network: 'polygon'}});
+                    const limitTrade = await gnsLimitOrder.findOne({where: {username: existingUser.walletOwner, tradeIndex: limitIndex, asset: pair.pairName, network: 'arbitrum'}});
                     const bananaPoints = ((limitTrade.collateral * limitTrade.leverage) / 100) * multiply[0].pointsMultiplier;
 
                     if(limitTrade) {
