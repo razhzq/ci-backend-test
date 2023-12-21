@@ -40,7 +40,7 @@ async function callbackGNSPolygonEvent() {
             const orderType = parseInt(eventData.orderType); //check back
 
             const existingUser = await userWallet.findOne({where: {publicKey: address}});
-
+            console.log('event data exist ', eventData);
             if(existingUser) {
                 console.log('limit executed on user: ', existingUser.walletOwner);
                 console.log('limit events: ', eventData);
