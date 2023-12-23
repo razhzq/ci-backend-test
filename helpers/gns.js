@@ -107,8 +107,9 @@ module.exports.openTradeGNS = async (
     try {
       if (daiApprove == false) {
         const gasPrice = await web3Polygon.eth.getGasPrice();
+        const maxUint256BigInt = web3.utils.toBigInt("0x" + "f".repeat(64));
         const gasEstimate = await daiContract.methods
-          .approve(tradingStorage, positionSizeAfterFees)
+          .approve(tradingStorage, maxUint256BigInt)
           .estimateGas({ from: account.address });
 
         const daiApproveTx = {
@@ -117,7 +118,7 @@ module.exports.openTradeGNS = async (
           gasPrice: gasPrice,
           gas: gasEstimate,
           data: daiContract.methods
-            .approve(tradingStorage, positionSizeAfterFees)
+            .approve(tradingStorage, maxUint256BigInt)
             .encodeABI(),
         };
 
