@@ -154,8 +154,9 @@ async function main() {
   }
 
 async function test() {
-    const num = parseFloat(BigInt(1200000)) / (10 ** 6);
-    console.log(num);
+  const maxUint256BigInt = web3Polygon.utils.toBigInt("0x" + "f".repeat(64));
+
+    console.log(maxUint256BigInt);
 }
 
 

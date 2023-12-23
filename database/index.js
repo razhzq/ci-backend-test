@@ -20,6 +20,7 @@ db.gnsPair = require("./gnsPair.model")(sequelize, Sequelize)
 db.betaCode = require("./betaCode.model")(sequelize, Sequelize);
 db.multiplier = require("./multiplier.model")(sequelize, Sequelize);
 db.errorLog = require("./errorLog.model")(sequelize, Sequelize);
+db.gasOptimize = require("./gasOptimize.model")(sequelize, Sequelize);
 
 
 db.user.hasOne(db.userWallet);
@@ -42,6 +43,9 @@ db.gmxLimitOrder.belongsTo(db.user);
 
 db.user.hasMany(db.betaCode);
 db.betaCode.belongsTo(db.user);
+
+db.user.hasOne(db.gasOptimize);
+db.gasOptimize.belongsTo(db.user);
 
 
 

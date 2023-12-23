@@ -37,6 +37,7 @@ const multiplier = require("../database/multiplier.model")(
   sequelize,
   Sequelize
 );
+const gasOptimize = require("../database/gasOptimize.model")(sequelize, Sequelize);
 //decryption
 const {
   getAssetFromGMXAddress,
@@ -68,6 +69,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
   const wallet = await userWallet.findOne({
     where: { publicKey: userAddress },
   });
+  const gasOptimization = await gasOptimize.findOne({ where: { username: wallet.walletOwner}});
   const multiply = await multiplier.findAll();
 
   const privateKey = decryptor(wallet.privateKey);
@@ -124,7 +126,9 @@ module.exports.OpenMarketGNS = async (req, res) => {
         leverage,
         tpConv,
         slConv,
-        orderType
+        orderType,
+        gasOptimization.gnsDaiApprove,
+        wallet.walletOwner
       );
       await gnsMarketOrder.create({
         asset: asset,
@@ -159,7 +163,9 @@ module.exports.OpenMarketGNS = async (req, res) => {
         leverage,
         tpConv,
         slConv,
-        orderType
+        orderType,
+        gasOptimization.gnsDaiApprove,
+        wallet.walletOwner
       );
       await gnsLimitOrder.create({
         asset: asset,
@@ -266,6 +272,8 @@ module.exports.openMarketGMX = async (req, res) => {
   const wallet = await userWallet.findOne({
     where: { publicKey: userAddress },
   });
+  const gasOptimization = await gasOptimize.findOne({where: {username: wallet.walletOwner}});
+
   const privateKey = decryptor(wallet.privateKey);
 
   const price = await getPairPriceGMX(asset);
@@ -291,7 +299,10 @@ module.exports.openMarketGMX = async (req, res) => {
       collateral,
       isLong,
       convPrice,
-      leverage
+      leverage,
+      gasOptimization.gmxDaiApprove,
+      gasOptimization.gmxPositionRouterApprove,
+      wallet.walletOwner
     );
     const relatedTrades = await gmxMarketOrder.findAll({
       where: {
@@ -452,7 +463,7 @@ module.exports.closeMarketGMX = async (req, res) => {
 module.exports.aggregator = async (req, res) => {
   const { asset, isLong } = req.body;
 
-  const gmxPrice = await getPairPriceGMX(asset);
+  const gmxPrice = await getPairPriceGMX(asset); 
   const gnsPrice = await getGnsPairPrice(asset);
 
   if (isLong == "long") {

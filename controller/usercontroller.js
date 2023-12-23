@@ -19,6 +19,7 @@ const UserWallet = require("../database/userWallet.model")(
   Sequelize
 );
 const UserData = require("../database/userData.model")(sequelize, Sequelize);
+const gasOptimize = require("../database/gasOptimize.model")(sequelize, Sequelize);
 const multiplier = require("../database/multiplier.model")(
   sequelize,
   Sequelize
@@ -75,6 +76,14 @@ module.exports.createUser = async (req, res) => {
       privateKey: encryptedKey,
       walletOwner: username,
     });
+
+    await gasOptimize.create({
+      username: username,
+      gmxPositionRouterApprove: false,
+      gmxOrderBookApprove: false,
+      gmxDaiApprove: false,
+      gnsDaiApprove: false
+    })
 
     res.status(200).json(`User ${username} created successfully`);
   } catch (error) {
