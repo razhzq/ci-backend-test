@@ -78,7 +78,7 @@ async function callbackGNSPolygonEvent() {
                         socket.emit('tradeActive', limitTradeOpened);
                     }
                 } else {
-                    const orderId = eventData.orderId;
+                    const orderId = parseInt(eventData.orderId);
                     
                     const trade = await gnsMarketOrder.findOne({where: {orderId: orderId, username: existingUser.walletOwner}});
 
