@@ -23,7 +23,7 @@ module.exports.calculateTakeProfit = (
   return takeProfitPrice.toFixed(2);
 };
 
-module.exports.calculateStopLoss = () => {
+module.exports.calculateStopLoss = (leverage, entryPrice, lossPercent, isLong) => {
   let stopLossPrice;
   if (isLong == true) {
     stopLossPrice =
