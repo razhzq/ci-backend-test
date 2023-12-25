@@ -46,15 +46,15 @@ const {
   closePositionGMX,
 } = require("../helpers/gmx");
 const { decryptor } = require("../helpers/decypter");
-const { calculateFees } = require("../helpers/fees");
+const { calculateFees, calculateTakeProfit, calculateStopLoss } = require("../helpers/fees");
 
 module.exports.OpenMarketGNS = async (req, res) => {
   const {
     collateral,
     leverage,
     asset,
-    tp,
-    sl,
+    tpPercent,
+    slPercent,
     network,
     isLong,
     userAddress,
@@ -76,6 +76,11 @@ module.exports.OpenMarketGNS = async (req, res) => {
   const price = await getGnsPairPrice(asset);
   const spreadPrice = Math.floor(price * 1.0005);
   const convPrice = BigInt(spreadPrice * 10 ** 10);
+
+  const tp = calculateTakeProfit(leverage, spreadPrice, tpPercent, isLong);
+  const sl = calculateStopLoss(leverage, spreadPrice, slPercent, isLong);
+
+
   console.log("spread price: ", spreadPrice);
   console.log("conv Spread price: ", convPrice);
   const bananaPoints =
