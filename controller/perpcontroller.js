@@ -80,12 +80,10 @@ module.exports.OpenMarketGNS = async (req, res) => {
   const tp = calculateTakeProfit(leverage, spreadPrice, tpPercent, isLong);
   const sl = calculateStopLoss(leverage, spreadPrice, slPercent, isLong);
 
-
   console.log("spread price: ", spreadPrice);
   console.log("conv Spread price: ", convPrice);
   const bananaPoints =
     ((collateral * leverage) / 100) * multiply[0].pointsMultiplier;
-
 
   const tpConv = BigInt((tp) * 10 ** 10);
   const slConv = BigInt((sl) * 10 ** 10);  
@@ -268,7 +266,7 @@ module.exports.cancelLimitGNS = async (req, res) => {
 };
 
 module.exports.openMarketGMX = async (req, res) => {
-  const { userAddress, asset, collateral, leverage, isLong } = req.body;
+  const { userAddress, asset, collateral, leverage, isLong, tpPercent, slPercent } = req.body;
 
   const multiply = await multiplier.findAll();
 
@@ -285,6 +283,9 @@ module.exports.openMarketGMX = async (req, res) => {
   const priceDec = BigInt(price) / BigInt(10 ** 30);
   let convPrice;
   const intPrice = parseInt(priceDec);
+
+  const tpPrice = calculateTakeProfit(leverage, intPrice, tpPercent, isLong);
+  const slPrice = calculateStopLoss(leverage, intPrice, slPercent, isLong);
 
   const tradeCollateral = Math.floor(parseInt(collateral) * 0.99);
 
@@ -337,6 +338,8 @@ module.exports.openMarketGMX = async (req, res) => {
           sizeDelta: sizeDelta,
           isLong: isLong,
           price: convPrice,
+          takeProfit: tpPrice,
+          stopLoss: slPrice,
           username: wallet.walletOwner,
         });
       }

@@ -8,6 +8,8 @@ module.exports = (sequelize, DataTypes) => {
         sizeDelta: DataTypes.FLOAT, //USD Value of the position including leverage 
         isLong: DataTypes.BOOLEAN,
         price: DataTypes.FLOAT,
+        takeProfit: DataTypes.FLOAT,
+        stopLoss: DataTypes.FLOAT,
         username: DataTypes.STRING
     });
    

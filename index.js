@@ -70,6 +70,12 @@ io.on("connection", (socket) => {
   socket.on("gmxLimitOpen", (data) => {
     io.emit("gmxLimitOpen", data);
   });
+  socket.on("tpTriggerGMX", (data) => {
+    io.emit("tpTriggerGMX", data)
+  })
+  socket.on("slTriggerGMX", (data) => {
+    io.emit("slTriggerGMX", data)
+  })
 });
 
 app.use(bodyParser.json());
