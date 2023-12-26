@@ -27,68 +27,66 @@ const callbackAddress = '0x298a695906e16aeA0a184A2815A76eAd1a0b7522'
 
 async function callbackGNSEvent() {
 
-      const callbackContract = new web3.eth.Contract(callbackAbi, callbackAddress);
+    const callbackContract = new web3.eth.Contract(callbackAbi, callbackAddress);
 
-      callbackContract.events.LimitExecuted().on(
-        'data', async(event) => {
-            const eventData = event.returnValues;
-            const eventTuple = eventData.t;
-            const address = eventTuple.trader;
-            const orderType = parseInt(eventData.orderType); //check back
+    callbackContract.events.LimitExecuted().on(
+      'data', async(event) => {
+          const eventData = event.returnValues;
+          const eventTuple = eventData.t;
+          const address = eventTuple.trader;
+          const orderType = parseInt(eventData.orderType); //check back
 
-            const existingUser = await userWallet.findOne({where: {publicKey: address}});
+          const existingUser = await userWallet.findOne({where: {publicKey: address}});
+          console.log('event data exist ', eventData);
+          if(existingUser) {
+              console.log('limit executed on user: ', existingUser.walletOwner);
+              console.log('limit events: ', eventData);
+              if(orderType == 3) {
+                  const limitIndex = parseInt(eventData.limitIndex);
+                  const pairIndex = parseInt(eventTuple.pairIndex);
+                  const pair = await gnsPair.findOne({where: {pairId: pairIndex}});
+                  const multiply = await multiplier.findAll();
 
-            if(existingUser) {
-                if(orderType == 3) {
-                    const limitIndex = parseInt(eventData.limitIndex);
-                    const pairIndex = parseInt(eventData.pairIndex);
-                    const pair = await gnsPair.findOne({where: {pairId: pairIndex}});
-                    const multiply = await multiplier.findAll();
+                  const limitTrade = await gnsLimitOrder.findOne({where: {username: existingUser.walletOwner, tradeIndex: limitIndex, asset: pair.pairName, network: 'arbitrum'}});
+                  const bananaPoints = ((limitTrade.collateral * limitTrade.leverage) / 100) * multiply[0].pointsMultiplier;
 
-                    const limitTrade = await gnsLimitOrder.findOne({where: {username: existingUser.walletOwner, tradeIndex: limitIndex, asset: pair.pairName, network: ''}});
-                    const bananaPoints = ((limitTrade.collateral * limitTrade.leverage) / 100) * multiply[0].pointsMultiplier;
+                  if(limitTrade) {
+                      const limitTradeOpened  = {
+                          limitTrade: limitTrade
+                      }
 
-                    if(limitTrade) {
-                        const limitTradeOpened  = {
-                            limitTrade: limitTrade
-                        }
+                      await gnsMarketOrder.create({
+                          asset: limitTrade.asset,
+                          trade_status: 0,
+                          price: limitTrade.price,
+                          collateral: limitTrade.collateral,
+                          delta: 0,
+                          tradeIndex: 0,
+                          orderId: eventData.orderId,
+                          isLong: limitTrade.isLong,
+                          leverage: limitTrade.leverage,
+                          network: 'arbitrum',
+                          username: existingUser.walletOwner
+                      })
 
-                        await gnsMarketOrder.create({
-                            asset: limitTrade.asset,
-                            trade_status: 0,
-                            price: limitTrade.price,
-                            collateral: limitTrade.collateral,
-                            delta: 0,
-                            tradeIndex: 0,
-                            orderId: eventData.orderId,
-                            isLong: limitTrade.isLong,
-                            leverage: limitTrade.leverage,
-                            network: 'arbitrum',
-                            username: existingUser.walletOwner
-                        })
+                      await userData.update({points: bananaPoints}, {where: { username: existingUser.walletOwner}});
+                      await gnsLimitOrder.destroy({where: {id: limitTrade.id}});
 
-                        await userData.update({points: bananaPoints}, {where: { username: existingUser.walletOwner}});
-                        await gnsLimitOrder.destroy({where: {id: limitTrade.id}});
+                      socket.emit('tradeActive', limitTradeOpened);
+                  }
+              } else {
+                  const orderId = parseInt(eventData.orderId);
+                  
+                  const trade = await gnsMarketOrder.findOne({where: {orderId: orderId, username: existingUser.walletOwner}});
 
-                        
-                        socket.emit('tradeActive', limitTradeOpened)
-
-                   
-                    }
-                } else {
-                    const orderId = eventData.orderId;
-                    
-                    const trade = await gnsMarketOrder.findOne({where: {orderId: orderId, username: existingUser.walletOwner}});
-
-                    if(trade) {
-                        await gnsMarketOrder.update({trade_status: 1}, {where: {id: trade.id}});
-                    }
-
-                    socket.emit('tradeClosed', trade)
-                }
-            }
-        }
-      )
+                  if(trade) {
+                      await gnsMarketOrder.update({trade_status: 1}, {where: {id: trade.id}});
+                  }
+                  socket.emit('tradeClosed', trade);
+              }
+          }
+      }
+    )
 }
 
 module.exports = callbackGNSEvent;
