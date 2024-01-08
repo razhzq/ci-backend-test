@@ -49,7 +49,9 @@ const daiAddressPolygon = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
 
 module.exports.getGnsPairPrice = async (asset) => {
   const pair = await gnsPair.findOne({ where: { pairName: asset } });
+  console.log('pair contract: ', pair.contractAddress)
 
+  let contract;
   if (pair?.network == "arbitrum") {
     contract = new web3.eth.Contract(pricecontractAbi, pair?.contractAddress);
   } else {
@@ -61,9 +63,9 @@ module.exports.getGnsPairPrice = async (asset) => {
 
   try {
     const price = await contract.methods.latestAnswer().call();
-    const priceMul = BigInt(price) / BigInt(10 ** 8);
-    const convPrice = parseFloat(priceMul.toString());
-    return convPrice;
+    const priceMul = (parseFloat(price) / parseFloat(10 ** 8));
+    // const convPrice = parseFloat(priceMul.toString());
+    return priceMul;
   } catch (error) {
     console.log(`Error reading from contract: ${error.message}`);
   }
