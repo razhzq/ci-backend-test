@@ -16,3 +16,14 @@ module.exports.decryptor = (hash) => {
 
 
 }
+
+
+module.exports.encryptor = (hash) => {
+
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
+    let encryptedKey = cipher.update(hash, "utf-8", "hex");
+    encryptedKey += cipher.final("hex");
+
+    return encryptedKey;
+    
+}

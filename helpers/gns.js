@@ -62,7 +62,7 @@ module.exports.getGnsPairPrice = async (asset) => {
   try {
     const price = await contract.methods.latestAnswer().call();
     const priceMul = BigInt(price) / BigInt(10 ** 8);
-    const convPrice = parseInt(priceMul.toString());
+    const convPrice = parseFloat(priceMul.toString());
     return convPrice;
   } catch (error) {
     console.log(`Error reading from contract: ${error.message}`);

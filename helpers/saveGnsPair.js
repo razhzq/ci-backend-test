@@ -14,68 +14,9 @@ const web3Polygon = new Web3(new Web3.providers.HttpProvider(polygonProvider))
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
 const { Sequelize, DataTypes } = require('sequelize');
+const { getArrayGNSPair } = require("./scrapeGnsPair");
 const sequelize = new Sequelize(process.env.DB_URL);
 const gnsPair = require('../database/gnsPair.model')(sequelize, DataTypes);
-
-const pairMap = [
-    'BTC/USD',
-    'ETH/USD',
-    'LINK/USD', 
-    'DOGE/USD',
-    'MATIC/USD',
-    'ADA/USD',
-    'SUSHI/USD',
-    'AAVE/USD',
-    'ALGO/USD',
-    'BAT/USD',
-    'COMP/USD', 
-    'DOT/USD', 
-    'EOS/USD', 
-    'LTC/USD', 
-    'MANA/USD', 
-    'OMG/USD', 
-    'SNX/USD', 
-    'UNI/USD', 
-    'XLM/USD', 
-    'XRP/USD', 
-    'ZEC/USD', 
-    'EUR/USD', 
-    'USD/JPY', 
-    'GBP/USD', 
-    'USD/CHF', 
-    'AUD/USD', 
-    'USD/CAD', 
-    'NZD/USD', 
-    'EUR/CHF', 
-    'EUR/JPY', 
-    'EUR/GBP', 
-    'LUNA/USD',
-    'YFI/USD', 
-    'SOL/USD', 
-    'XTZ/USD', 
-    'BCH/USD', 
-    'BNT/USD', 
-    'CRV/USD', 
-    'DASH/USD',
-    'ETC/USD', 
-    'ICP/USD', 
-    'MKR/USD', 
-    'NEO/USD', 
-    'THETA/USD',
-    'TRX/USD', 
-    'ZRX/USD', 
-    'SAND/USD',
-    'BNB/USD', 
-    'AXS/USD', 
-    'GRT/USD', 
-    'HBAR/USD',
-    'XMR/USD', 
-    'ENJ/USD', 
-    'FTM/USD', 
-    'FTT/USD',
-    'APE/USD',
-    'CHZ/USD',
-    'SHIB/USD', ]
 
 
 
@@ -84,9 +25,9 @@ const saveGNSPairContract = async () => {
 
     const storage = new web3.eth.Contract(pairStorageAbi, "0xf67Df2a4339eC1591615d94599081Dd037960d4b")
     const polyStorage = new web3Polygon.eth.Contract(pairStorageAbi, "0x6e5326e944F528c243B9Ca5d14fe5C9269a8c922")
+    const pairMap = await getArrayGNSPair();
 
-
-    for(let i =0; i < 110; i++) {
+    for(let i =0; i < pairMap.length; i++) {
         const pair = await storage.methods.pairFeed(i).call()
         const pairContract = pair['0']
 

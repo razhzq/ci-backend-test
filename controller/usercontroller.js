@@ -32,7 +32,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
 const crypto = require("crypto");
 const util = require("util");
-const { decryptor } = require("../helpers/decypter");
+const { decryptor, encryptor } = require("../helpers/decypter");
 
 const algorithm = "aes-256-cbc";
 const key = Buffer.from(process.env.KEY, "hex");
@@ -55,9 +55,7 @@ module.exports.createUser = async (req, res) => {
 
     const newAccount = await web3.eth.accounts.create();
 
-    const cipher = crypto.createCipheriv(algorithm, key, iv);
-    let encryptedKey = cipher.update(newAccount.privateKey, "utf-8", "hex");
-    encryptedKey += cipher.final("hex");
+    const encryptedKey = encryptor(newAccount.privateKey);
 
     await User.create({
       username: username,
