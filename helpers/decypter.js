@@ -2,6 +2,7 @@ require("dotenv").config({ path: "../.env" });
 const crypto = require("crypto");
 const algorithm = "aes-256-cbc";
 const AWS = require("aws-sdk");
+AWS.config.update({region: 'us-east-1'})
 require("aws-sdk/lib/maintenance_mode_message").suppress = true;
 const kms = new AWS.KMS();
 
