@@ -200,6 +200,8 @@ module.exports.getUserWalletDetails = async (req, res) => {
     const wallet = await userWallet.findOne({
       where: { walletOwner: username },
     });
+
+    delete wallet.privateKey;
     res.status(200).json({
       wallet: wallet,
     });
