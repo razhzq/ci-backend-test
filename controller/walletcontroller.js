@@ -17,7 +17,7 @@ const { decryptor } = require("../helpers/decypter");
 const providerUrl = process.env.ARBITRUM_HTTP;
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
-const polygonProvider = process.env.POLYGON_HTTP;
+const polygonProvider = process.env.MUMBAI_HTTP;
 const web3Polygon = new Web3(new Web3.providers.HttpProvider(polygonProvider));
 
 const daiAbiPath = path.resolve(__dirname, "../contractABI/DAIcontract.json");

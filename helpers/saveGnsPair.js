@@ -2,7 +2,7 @@ require("dotenv").config({ path: "../.env" });
 const path = require("path");
 const fs = require("fs");
 const {Web3} = require('web3');
-
+const puppeteer = require('puppeteer')
 
 const gnsabiPath = path.resolve(__dirname, "../contractABI/GNSPairStorage.json");
 const gnsrawData = fs.readFileSync(gnsabiPath);
@@ -14,7 +14,6 @@ const web3Polygon = new Web3(new Web3.providers.HttpProvider(polygonProvider))
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
 const { Sequelize, DataTypes } = require('sequelize');
-const { getArrayGNSPair } = require("./scrapeGnsPair");
 const sequelize = new Sequelize(process.env.DB_URL);
 const gnsPair = require('../database/gnsPair.model')(sequelize, DataTypes);
 
