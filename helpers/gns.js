@@ -49,7 +49,6 @@ const daiAddressPolygon = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
 
 module.exports.getGnsPairPrice = async (asset) => {
   const pair = await gnsPair.findOne({ where: { pairName: asset } });
-  console.log('pair contract: ', pair.contractAddress)
 
   let contract;
   if (pair?.network == "arbitrum") {
@@ -107,99 +106,99 @@ module.exports.openTradeGNS = async (
     console.log("positionSize: ", positionSizeAfterFees);
 
     try {
-      // if (daiApprove == false) {
-      //   const gasPrice = await web3Polygon.eth.getGasPrice();
-      //   const maxUint256BigInt = web3.utils.toBigInt("0x" + "f".repeat(64));
-      //   const gasEstimate = await daiContract.methods
-      //     .approve(tradingStorage, maxUint256BigInt)
-      //     .estimateGas({ from: account.address });
+      if (daiApprove == false) {
+        const gasPrice = await web3Polygon.eth.getGasPrice();
+        const maxUint256BigInt = web3.utils.toBigInt("0x" + "f".repeat(64));
+        const gasEstimate = await daiContract.methods
+          .approve(tradingStorage, maxUint256BigInt)
+          .estimateGas({ from: account.address });
 
-      //   const daiApproveTx = {
-      //     from: account.address,
-      //     to: daiAddressPolygon,
-      //     gasPrice: gasPrice,
-      //     gas: gasEstimate,
-      //     data: daiContract.methods
-      //       .approve(tradingStorage, maxUint256BigInt)
-      //       .encodeABI(),
-      //   };
+        const daiApproveTx = {
+          from: account.address,
+          to: daiAddressPolygon,
+          gasPrice: gasPrice,
+          gas: gasEstimate,
+          data: daiContract.methods
+            .approve(tradingStorage, maxUint256BigInt)
+            .encodeABI(),
+        };
 
-      //   const daiApproveSignature =
-      //     await web3Polygon.eth.accounts.signTransaction(
-      //       daiApproveTx,
-      //       privateKey
-      //     );
+        const daiApproveSignature =
+          await web3Polygon.eth.accounts.signTransaction(
+            daiApproveTx,
+            privateKey
+          );
 
-      //   await web3Polygon.eth
-      //     .sendSignedTransaction(daiApproveSignature.rawTransaction)
-      //     .on("receipt", async (receipt) => {
-      //       if (receipt.status == BigInt(1)) {
-      //         await gasOptimize.update(
-      //           { gnsDaiApprove: true },
-      //           { where: { username: username } }
-      //         );
-      //       }
-      //     });
-      // }
-      // //approve DAI for trade functions
+        await web3Polygon.eth
+          .sendSignedTransaction(daiApproveSignature.rawTransaction)
+          .on("receipt", async (receipt) => {
+            if (receipt.status == BigInt(1)) {
+              await gasOptimize.update(
+                { gnsDaiApprove: true },
+                { where: { username: username } }
+              );
+            }
+          });
+      }
+      //approve DAI for trade functions
 
-      // const tgasPrice = await web3Polygon.eth.getGasPrice();
-      // const tradeTuple = {
-      //   trader: account.address,
-      //   pairIndex: pairIndex,
-      //   index: 0,
-      //   initialPosToken: 0,
-      //   positionSizeDai: positionSizeAfterFees,
-      //   openPrice: openPrice,
-      //   buy: isLong,
-      //   leverage: leverage,
-      //   tp: tp,
-      //   sl: sl,
-      // };
-      // const tradeTx = {
-      //   from: account.address,
-      //   to: tradingContractPolyAddress,
-      //   gasPrice: tgasPrice,
-      //   gas: 3000000,
-      //   data: tradingContract.methods
-      //     .openTrade(
-      //       tradeTuple,
-      //       orderType,
-      //       30000000000,
-      //       "0x0000000000000000000000000000000000000000"
-      //     )
-      //     .encodeABI(),
-      // };
-      // const tradeSignature = await web3Polygon.eth.accounts.signTransaction(
-      //   tradeTx,
-      //   privateKey
-      // );
-      // await web3Polygon.eth
-      //   .sendSignedTransaction(tradeSignature.rawTransaction)
-      //   .on("receipt", (receipt) => {
-      //     const tradeLogs = receipt.logs;
-      //     var i = 0;
-      //     while (i < tradeLogs.length) {
-      //       if (
-      //         tradeLogs[i].address ==
-      //         "0xb0901fead3112f6caf9353ec5c36dc3dde111f61"
-      //       ) {
-      //         if (orderType == 0) {
-      //           const topics = tradeLogs[i].topics;
-      //           const hexOrderId = topics[1];
-      //           const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
-      //           console.log("orderId: ", orderId);
-      //           resolve(orderId);
-      //         } else {
-      //           const data = tradeLogs[i].data;
-      //           const limitTradeIndex = web3Polygon.utils.hexToNumber(data);
-      //           resolve(limitTradeIndex);
-      //         }
-      //       }
-      //       i++;
-      //     }
-      //   });
-      reject('fail test')
+      const tgasPrice = await web3Polygon.eth.getGasPrice();
+      const tradeTuple = {
+        trader: account.address,
+        pairIndex: pairIndex,
+        index: 0,
+        initialPosToken: 0,
+        positionSizeDai: positionSizeAfterFees,
+        openPrice: openPrice,
+        buy: isLong,
+        leverage: leverage,
+        tp: tp,
+        sl: sl,
+      };
+      const tradeTx = {
+        from: account.address,
+        to: tradingContractPolyAddress,
+        gasPrice: tgasPrice,
+        gas: 3000000,
+        data: tradingContract.methods
+          .openTrade(
+            tradeTuple,
+            orderType,
+            30000000000,
+            "0x0000000000000000000000000000000000000000"
+          )
+          .encodeABI(),
+      };
+      const tradeSignature = await web3Polygon.eth.accounts.signTransaction(
+        tradeTx,
+        privateKey
+      );
+      await web3Polygon.eth
+        .sendSignedTransaction(tradeSignature.rawTransaction)
+        .on("receipt", (receipt) => {
+          const tradeLogs = receipt.logs;
+          var i = 0;
+          while (i < tradeLogs.length) {
+            if (
+              tradeLogs[i].address ==
+              "0xb0901fead3112f6caf9353ec5c36dc3dde111f61"
+            ) {
+              if (orderType == 0) {
+                const topics = tradeLogs[i].topics;
+                const hexOrderId = topics[1];
+                const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
+                console.log("orderId: ", orderId);
+                resolve(orderId);
+              } else {
+                const data = tradeLogs[i].data;
+                const limitTradeIndex = web3Polygon.utils.hexToNumber(data);
+                resolve(limitTradeIndex);
+              }
+            }
+            i++;
+          }
+        });
+
     } catch (error) {
       await errorLog.create({
         error: error.message,
