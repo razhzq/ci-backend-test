@@ -25,8 +25,8 @@ async function getKeyFromKMS(hash) {
     KeyId: keyArn,
   };
 
-  const response = await kms.decrypt(params);
-  return response.Plaintext;
+  const { Plaintext } = await kms.decrypt(params).promise();
+  return Plaintext.toString();
 }
 
 async function encryptKMS(data) {
@@ -35,8 +35,8 @@ async function encryptKMS(data) {
         Plaintext: Buffer.from(data, 'utf-8'),
       };
     
-      const response = await kms.encrypt(params);
-      return response.CiphertextBlob;
+      const { CiphertextBlob } = await kms.encrypt(params).promise();
+      return CiphertextBlob.toString('base64');
 }
 
 module.exports.decryptor = async (hash) => {
