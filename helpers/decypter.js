@@ -7,7 +7,7 @@ require("aws-sdk/lib/maintenance_mode_message").suppress = true;
 const kms = new AWS.KMS();
 
 const iv = Buffer.from(process.env.IV_KEY, "hex");
-const keyAlias = 'apedBotBackendKEY';
+const keyAlias = 'arn:aws:kms:us-east-1:541838817617:alias/apedBotBackendKEY';
 
 async function getKMSData(alias) {
   const params = {
