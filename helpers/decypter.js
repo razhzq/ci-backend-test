@@ -25,7 +25,7 @@ async function getKeyFromKMS(hash) {
     KeyId: keyArn,
   };
 
-  const response = await kms.decrypt(params).promise();
+  const response = await kms.decrypt(params);
   return response.Plaintext;
 }
 
@@ -35,7 +35,7 @@ async function encryptKMS(data) {
         Plaintext: Buffer.from(data, 'utf-8'),
       };
     
-      const response = await kms.encrypt(params).promise();
+      const response = await kms.encrypt(params);
       return response.CiphertextBlob.toString('base64');
 }
 
