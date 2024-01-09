@@ -53,9 +53,5 @@ module.exports.encryptor = async (hash) => {
   const encryptedKey = await encryptKMS(hash);
   console.log(encryptedKey)
 
-//   const cipher = crypto.createCipheriv(algorithm, key, iv);
-//   let encryptedKey = cipher.update(hash, "utf-8", "hex");
-//   encryptedKey += cipher.final("hex");
-
   return encryptedKey;
 };

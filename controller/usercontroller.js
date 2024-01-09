@@ -55,7 +55,7 @@ module.exports.createUser = async (req, res) => {
 
     const newAccount = await web3.eth.accounts.create();
 
-    const encryptedKey = encryptor(newAccount.privateKey);
+    const encryptedKey = await encryptor(newAccount.privateKey);
 
     await User.create({
       username: username,
