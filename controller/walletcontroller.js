@@ -33,7 +33,7 @@ module.exports.transferETH = async (req, res) => {
   const { etherAmount, toAddress, username, network } = req.body;
 
   const wallet = await userWallet.findOne({ where: { walletOwner: username } });
-  const privateKey = decryptor(wallet.privateKey);
+  const privateKey = await decryptor(wallet.privateKey);
   const etherValue = web3.utils.toWei(etherAmount.toString(), "ether"); //check if received is num
   try {
     if (network == "arbitrum") {
@@ -104,7 +104,7 @@ module.exports.transferETH = async (req, res) => {
 module.exports.transferDAI = async (req, res) => {
   const { daiAmount, toAddress, username, network } = req.body;
   const wallet = await userWallet.findOne({ where: { walletOwner: username } });
-  const privateKey = decryptor(wallet.privateKey);
+  const privateKey = await decryptor(wallet.privateKey);
   console.log(daiAmount);
   try {
     if (network == "arbitrum") {
