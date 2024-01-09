@@ -72,7 +72,7 @@ module.exports.OpenMarketGNS = async (req, res) => {
   const gasOptimization = await gasOptimize.findOne({ where: { username: wallet.walletOwner}});
   const multiply = await multiplier.findAll();
 
-  const privateKey = decryptor(wallet.privateKey);
+  const privateKey = await decryptor(wallet.privateKey);
   const price = await getGnsPairPrice(asset);
   const spreadPrice = Math.floor(price * 1.0005);
   const convPrice = BigInt(spreadPrice * 10 ** 10);
@@ -201,7 +201,7 @@ module.exports.closeMarketOrderGNS = async (req, res) => {
   const wallet = await userWallet.findOne({
     where: { publicKey: userAddress },
   });
-  const privateKey = decryptor(wallet.privateKey);
+  const privateKey = await decryptor(wallet.privateKey);
 
   try {
     const status = await closeTradeGNS(
@@ -241,7 +241,7 @@ module.exports.cancelLimitGNS = async (req, res) => {
   const pair = await gnsPair.findOne({ where: { pairName: asset } });
 
   const wallet = await userWallet.findOne({ where: { walletOwner: username } });
-  const privateKey = decryptor(wallet.privateKey);
+  const privateKey = await decryptor(wallet.privateKey);
   try {
     const receipt = await cancelLimitOrderGNS(
       privateKey,
@@ -277,7 +277,7 @@ module.exports.openMarketGMX = async (req, res) => {
   });
   const gasOptimization = await gasOptimize.findOne({where: {username: wallet.walletOwner}});
 
-  const privateKey = decryptor(wallet.privateKey);
+  const privateKey = await decryptor(wallet.privateKey);
 
   const price = await getPairPriceGMX(asset);
   const priceDec = BigInt(price) / BigInt(10 ** 30);
@@ -419,7 +419,7 @@ module.exports.closeMarketGMX = async (req, res) => {
   const wallet = await userWallet.findOne({
     where: { publicKey: userAddress },
   });
-  const privateKey = decryptor(wallet.privateKey);
+  const privateKey = await decryptor(wallet.privateKey);
 
   const price = await getPairPriceGMX(asset);
   const priceDec = BigInt(price) / BigInt(10 ** 30);

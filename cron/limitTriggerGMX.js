@@ -37,7 +37,7 @@ async function limitTriggerGMX() {
       const wallet = await userWallet.findOne({
         where: { walletOwner: gmxMarkets[i].username },
       });
-      const privateKey = decryptor(wallet.privateKey);
+      const privateKey = await decryptor(wallet.privateKey);
       if (currentPrice >= tpTrigger && currentPrice <= tp) {
         const closeTrade = await closePositionGMX(
           privateKey,

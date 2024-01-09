@@ -57,7 +57,7 @@ async function checkLimitOrderActiveGMX() {
         const wallet = await userWallet.findOne({
           where: { walletOwner: gmxAllLimitTrades[i].username },
         });
-        const privateKey = decryptor(wallet.privateKey);
+        const privateKey = await decryptor(wallet.privateKey);
         const indexToken = getAssetFromGMXAddress(asset);
         const status = await createPositionGMX(
           privateKey,
@@ -107,7 +107,7 @@ async function checkLimitOrderActiveGMX() {
         const wallet = await userWallet.findOne({
           where: { walletOwner: gmxAllLimitTrades[i].username },
         });
-        const privateKey = decryptor(wallet.privateKey);
+        const privateKey = await decryptor(wallet.privateKey);
         const indexToken = getAssetFromGMXAddress(asset);
         const status = await createPositionGMX(
           privateKey,
