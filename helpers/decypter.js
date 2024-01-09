@@ -18,9 +18,10 @@ async function getKMSData(alias) {
   return response.KeyMetadata.Arn;
 }
 
-async function getKeyFromKMS(alias) {
-  const keyArn = await getKMSData(alias);
+async function getKeyFromKMS(hash) {
+  const keyArn = await getKMSData(keyAlias);
   const params = {
+    CiphertextBlob: Buffer.from(hash, "base64"),
     KeyId: keyArn,
   };
 
@@ -28,22 +29,32 @@ async function getKeyFromKMS(alias) {
   return response.Plaintext;
 }
 
-module.exports.decryptor = async (hash) => {
-  const key = await getKeyFromKMS(keyAlias);
+async function encryptKMS(data) {
+    const params = {
+        KeyId: keyAlias,
+        Plaintext: Buffer.from(data, 'utf-8'),
+      };
+    
+      const response = await kms.encrypt(params).promise();
+      return response.CiphertextBlob.toString('base64');
+}
 
-  const decipher = crypto.createDecipheriv(algorithm, key, iv);
-  let decryptedData = decipher.update(hash, "hex", "utf8");
-  decryptedData += decipher.final("utf8");
+module.exports.decryptor = async (hash) => {
+  const decryptedData = await getKeyFromKMS(hash);
+
+//   const decipher = crypto.createDecipheriv(algorithm, key, iv);
+//   let decryptedData = decipher.update(hash, "hex", "utf8");
+//   decryptedData += decipher.final("utf8");
 
   return decryptedData;
 };
 
 module.exports.encryptor = async (hash) => {
-  const key = await getKeyFromKMS(keyAlias);
+  const encryptedKey = await encryptKMS(hash);
 
-  const cipher = crypto.createCipheriv(algorithm, key, iv);
-  let encryptedKey = cipher.update(hash, "utf-8", "hex");
-  encryptedKey += cipher.final("hex");
+//   const cipher = crypto.createCipheriv(algorithm, key, iv);
+//   let encryptedKey = cipher.update(hash, "utf-8", "hex");
+//   encryptedKey += cipher.final("hex");
 
   return encryptedKey;
 };
