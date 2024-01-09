@@ -36,7 +36,7 @@ async function encryptKMS(data) {
       };
     
       const response = await kms.encrypt(params);
-      return response.CiphertextBlob.toString('base64');
+      return response.CiphertextBlob;
 }
 
 module.exports.decryptor = async (hash) => {
