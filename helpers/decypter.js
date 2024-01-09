@@ -2,6 +2,7 @@ require("dotenv").config({ path: "../.env" });
 const crypto = require("crypto");
 const algorithm = "aes-256-cbc";
 const AWS = require("aws-sdk");
+require("aws-sdk/lib/maintenance_mode_message").suppress = true;
 const kms = new AWS.KMS();
 
 const iv = Buffer.from(process.env.IV_KEY, "hex");
