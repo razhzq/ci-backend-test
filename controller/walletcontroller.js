@@ -201,9 +201,13 @@ module.exports.getUserWalletDetails = async (req, res) => {
       where: { walletOwner: username },
     });
 
-    delete wallet.privateKey;
+    const walletPlain = wallet.get({ plain: true });
+
+    // Remove privateKey from the object
+    delete walletPlain.privateKey;
+
     res.status(200).json({
-      wallet: wallet,
+      wallet: walletPlain,
     });
   } catch (error) {
     res.status(400).json({
