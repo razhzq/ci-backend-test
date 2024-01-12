@@ -52,6 +52,7 @@ var cron = require("node-cron");
 const { calculateDeltaGMX, calculateDeltaGNS } = require("./cron/delta");
 const checkLimitOrderActiveGMX = require("./cron/limitOrderGMX");
 const { getPriceGNS, getPriceGMX } = require("./controller/pricecontroller");
+const { resourceLimits } = require("worker_threads");
 
 const app = express();
 
@@ -145,6 +146,10 @@ app.post("/wallet/withdraw/eth", authenticateToken, transferETH);
 app.post("/wallet/withdraw/dai", authenticateToken, transferDAI);
 
 app.post("/user/airdrop", userAirdropPoints);
+
+app.get("/", (_, res) => {
+   res.status(200).json('Welcome to ApedBot API');
+})
 
 // const port = process.env.EA_PORT || 8081
 
