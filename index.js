@@ -21,6 +21,7 @@ const {
   testData,
   getAllUserLimitTrades,
   checkIP,
+  checkCORS,
 } = require("./controller/usercontroller");
 const {
   openMarketGMX,
@@ -107,22 +108,22 @@ db.sequelize.sync().then(() => {
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //ROUTES
-app.get("/user/allTrades/:username", getAllUserTrades);
-app.get("/user/limitTrades/:username", getAllUserLimitTrades);
+app.get("/user/allTrades/:username", checkCORS, getAllUserTrades);
+app.get("/user/limitTrades/:username", checkCORS, getAllUserLimitTrades);
 app.get("/leaderboards", getLeaderboards);
 
-app.get("/chat/:username", getUserChatId);
+app.get("/chat/:username", checkCORS, getUserChatId);
 
 app.post("/price/gns", getPriceGNS);
 app.post("/price/gmx", getPriceGMX);
 app.post("/aggregator", aggregator);
 app.post("/aggregator/user", aggregatorUser);
 
-app.get("/user/data/:username", getUserData);
-app.post("/user/create", createUser);
-app.post("/user/auth", checkIP,userAuthentication);
+app.get("/user/data/:username", checkCORS ,getUserData);
+app.post("/user/create", checkCORS,createUser);
+app.post("/user/auth", checkCORS,userAuthentication);
 app.get("/user/check/:username", checkUsernameRedundance);
-app.get("/verify/token", verifyToken);
+app.get("/verify/token", checkCORS , verifyToken);
 
 
 
@@ -134,10 +135,10 @@ app.post("/close/gmx", authenticateToken, closeMarketGMX);
 app.post("/close/limit/gmx", authenticateToken, cancelLimitGMX);
 app.post("/close/limit/gns", authenticateToken, cancelLimitGNS);
 
-app.post("/code/create", createBetaCodes);
-app.post("/code/create/referral", createBetaCodesByUser);
-app.post("/code/use", useBetaCode);
-app.post("/code/check", checkBetaCode);
+app.post("/code/create", checkCORS ,createBetaCodes);
+app.post("/code/create/referral", checkCORS, createBetaCodesByUser);
+app.post("/code/use", checkCORS,useBetaCode);
+app.post("/code/check", checkCORS, checkBetaCode);
 app.get('/code/list/:username', getUserBetaCodes);
 
 app.get("/wallet/user/:username", getUserWalletDetails);
@@ -148,7 +149,7 @@ app.post("/wallet/withdraw/dai", authenticateToken, transferDAI);
 
 app.post("/user/airdrop", userAirdropPoints);
 
-app.get("/", (_, res) => {
+app.get("/", checkCORS,  (_, res) => {
    res.status(200).json('Welcome to ApedBot API');
 })
 

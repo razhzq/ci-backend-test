@@ -255,14 +255,25 @@ module.exports.userAirdropPoints = async (req, res) => {
   res.status(400).json("incorrect master password");
 };
 
-module.exports.checkIP = (req, res, next) => {
-  console.log('Request headers:', req.headers.origin);
+module.exports.checkCORS = (req, res, next) => {
+  const secret = req.header("Secret");
+
+  if (!secret || secret !== SECRET_TOKEN) {
+    return res.status(403).json({ cors: "fail" });
+  }
+
   next();
+
 }
 
 
 module.exports.authenticateToken = (req, res, next) => {
   const token = req.header("Authorization");
+  const secret = req.header("Secret");
+
+  if (!secret || secret !== SECRET_TOKEN) {
+    return res.status(403).json({ cors: "fail" });
+  }
 
   if (!token) {
     return res.status(401).json({ auth: "fail" });
