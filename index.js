@@ -135,7 +135,7 @@ app.post("/close/gmx", authenticateToken, closeMarketGMX);
 app.post("/close/limit/gmx", authenticateToken, cancelLimitGMX);
 app.post("/close/limit/gns", authenticateToken, cancelLimitGNS);
 
-app.post("/code/create", checkCORS ,createBetaCodes);
+app.post("/code/create",createBetaCodes);
 app.post("/code/create/referral", checkCORS, createBetaCodesByUser);
 app.post("/code/use", checkCORS,useBetaCode);
 app.post("/code/check", checkCORS, checkBetaCode);
