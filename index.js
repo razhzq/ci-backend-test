@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: "http://52.91.213.254",
+    origin: "https://api.telegram.org/bot6335555882:AAFyZgnYQlCyndoLAEpKgqHKTdk74LrPGVA/",
   })
 );
 
