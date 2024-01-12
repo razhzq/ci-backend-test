@@ -256,8 +256,7 @@ module.exports.userAirdropPoints = async (req, res) => {
 };
 
 module.exports.checkIP = (req, res, next) => {
-  const clientIp = req.ip || req.connection.remoteAddress;
-  console.log(`Request from client IP: ${clientIp}`);
+  console.log('Request headers:', req.headers);
   next();
 }
 
