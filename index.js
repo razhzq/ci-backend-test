@@ -20,6 +20,7 @@ const {
   verifyToken,
   testData,
   getAllUserLimitTrades,
+  checkIP,
 } = require("./controller/usercontroller");
 const {
   openMarketGMX,
@@ -119,7 +120,7 @@ app.post("/aggregator/user", aggregatorUser);
 
 app.get("/user/data/:username", getUserData);
 app.post("/user/create", createUser);
-app.post("/user/auth", userAuthentication);
+app.post("/user/auth", checkIP,userAuthentication);
 app.get("/user/check/:username", checkUsernameRedundance);
 app.get("/verify/token", verifyToken);
 

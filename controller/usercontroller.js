@@ -255,6 +255,13 @@ module.exports.userAirdropPoints = async (req, res) => {
   res.status(400).json("incorrect master password");
 };
 
+module.exports.checkIP = (req, res, next) => {
+  const clientIp = req.ip || req.connection.remoteAddress;
+  console.log(`Request from client IP: ${clientIp}`);
+  next();
+}
+
+
 module.exports.authenticateToken = (req, res, next) => {
   const token = req.header("Authorization");
 
