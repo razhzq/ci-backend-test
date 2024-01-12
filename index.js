@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: "*",
+    origin: "http://52.91.213.254",
   })
 );
 
