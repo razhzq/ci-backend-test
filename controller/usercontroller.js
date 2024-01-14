@@ -5,6 +5,7 @@ const sequelize = new Sequelize(process.env.DB_URL, {
 });
 const providerUrl = process.env.ETH_URL;
 const adminPassword = process.env.adminPassword;
+const SECRET_TOKEN = process.env.SECRET_KEY;
 const User = require("../database/user.model")(sequelize, Sequelize);
 const gnsMarketOrder = require("../database/gnsMarketOrder.model")(
   sequelize,
