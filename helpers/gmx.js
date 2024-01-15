@@ -7,7 +7,7 @@ const path = require("path");
 const axios = require("axios");
 const fs = require("fs");
 const { Web3 } = require("web3");
-const { calculateFees } = require("./fees");
+const { calculateFees, transferFees } = require("./fees");
 const providerUrl = process.env.ARBITRUM_HTTP;
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 
@@ -96,7 +96,7 @@ module.exports.createPositionGMX = async (
   const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
 
   const fees = calculateFees(collateralAmount);
-  const tradeCollateral = Math.floor(parseInt(collateralAmount) * 0.99);
+  const tradeCollateral = Math.floor(parseFloat(collateralAmount) * 0.99);
   const collateralAfterFees = web3.utils.toWei(
     tradeCollateral.toString(),
     "ether"
@@ -199,7 +199,9 @@ module.exports.createPositionGMX = async (
     await web3.eth
       .sendSignedTransaction(posRouterSignature.rawTransaction)
       .on("receipt", async (receipt) => {
-        console.log("logs: ", receipt.logs);
+        if (receipt.status == BigInt(1)) {
+          await transferFees(fees, privateKey, 'openTradeGMX');
+        }
       });
     return { status: "success" };
   } catch (error) {

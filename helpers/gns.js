@@ -15,7 +15,7 @@ const gasOptimize = require("../database/gasOptimize.model")(
 const path = require("path");
 const fs = require("fs");
 const { Web3 } = require("web3");
-const { calculateFees } = require("./fees");
+const { calculateFees, transferFees } = require("./fees");
 
 const providerUrl = process.env.ARBITRUM_HTTP;
 const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
@@ -85,14 +85,14 @@ module.exports.openTradeGNS = async (
   username
 ) => {
   return new Promise(async (resolve, reject) => {
-    const account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
+    const account = web3.eth.accounts.privateKeyToAccount(privateKey);
 
-    const tradingContract = new web3Polygon.eth.Contract(
+    const tradingContract = new web3.eth.Contract(
       tradingContractAbi,
-      tradingContractPolyAddress
+      tradingContractArbitrumAddress
     );
-    const daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
-    const tradingStorage = tradingStoragePolyAddress;
+    const daiContract = new web3.eth.Contract(daiAbi, daiAddressArbitrum);
+    const tradingStorage = tradingStorageArbitrumAddress;
 
     //calculate collateral and fees
     const fees = calculateFees(collateral);
@@ -107,7 +107,7 @@ module.exports.openTradeGNS = async (
 
     try {
       if (daiApprove == false) {
-        const gasPrice = await web3Polygon.eth.getGasPrice();
+        const gasPrice = await web3.eth.getGasPrice();
         const maxUint256BigInt = web3.utils.toBigInt("0x" + "f".repeat(64));
         const gasEstimate = await daiContract.methods
           .approve(tradingStorage, maxUint256BigInt)
@@ -115,7 +115,7 @@ module.exports.openTradeGNS = async (
 
         const daiApproveTx = {
           from: account.address,
-          to: daiAddressPolygon,
+          to: daiAddressArbitrum,
           gasPrice: gasPrice,
           gas: gasEstimate,
           data: daiContract.methods
@@ -124,12 +124,12 @@ module.exports.openTradeGNS = async (
         };
 
         const daiApproveSignature =
-          await web3Polygon.eth.accounts.signTransaction(
+          await web3.eth.accounts.signTransaction(
             daiApproveTx,
             privateKey
           );
 
-        await web3Polygon.eth
+        await web3.eth
           .sendSignedTransaction(daiApproveSignature.rawTransaction)
           .on("receipt", async (receipt) => {
             if (receipt.status == BigInt(1)) {
@@ -142,7 +142,7 @@ module.exports.openTradeGNS = async (
       }
       //approve DAI for trade functions
 
-      const tgasPrice = await web3Polygon.eth.getGasPrice();
+      const tgasPrice = await web3.eth.getGasPrice();
       const tradeTuple = {
         trader: account.address,
         pairIndex: pairIndex,
@@ -157,7 +157,7 @@ module.exports.openTradeGNS = async (
       };
       const tradeTx = {
         from: account.address,
-        to: tradingContractPolyAddress,
+        to: tradingContractArbitrumAddress,
         gasPrice: tgasPrice,
         gas: 3000000,
         data: tradingContract.methods
@@ -169,13 +169,14 @@ module.exports.openTradeGNS = async (
           )
           .encodeABI(),
       };
-      const tradeSignature = await web3Polygon.eth.accounts.signTransaction(
+      const tradeSignature = await web3.eth.accounts.signTransaction(
         tradeTx,
         privateKey
       );
-      await web3Polygon.eth
+
+      await web3.eth
         .sendSignedTransaction(tradeSignature.rawTransaction)
-        .on("receipt", (receipt) => {
+        .on("receipt", async (receipt) => {
           const tradeLogs = receipt.logs;
           var i = 0;
           while (i < tradeLogs.length) {
@@ -186,12 +187,14 @@ module.exports.openTradeGNS = async (
               if (orderType == 0) {
                 const topics = tradeLogs[i].topics;
                 const hexOrderId = topics[1];
-                const orderId = web3Polygon.utils.hexToNumber(hexOrderId);
+                const orderId = web3.utils.hexToNumber(hexOrderId);
                 console.log("orderId: ", orderId);
+                await transferFees(fees, privateKey, "openTradeGNS");
                 resolve(orderId);
               } else {
                 const data = tradeLogs[i].data;
-                const limitTradeIndex = web3Polygon.utils.hexToNumber(data);
+                const limitTradeIndex = web3.utils.hexToNumber(data);
+                await transferFees(fees, privateKey, "openTradeGNS");
                 resolve(limitTradeIndex);
               }
             }
@@ -227,23 +230,23 @@ module.exports.closeTradeGNS = async (
     console.log("pairIndex: ", pairIndex);
     console.log("tradeIndex: ", tradeIndex);
 
-    account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
-    tradingContract = new web3Polygon.eth.Contract(
+    account = web3.eth.accounts.privateKeyToAccount(privateKey);
+    tradingContract = new web3.eth.Contract(
       tradingContractAbi,
       tradingContractPolyAddress
     );
-    daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
-    tradingStorageAddress = tradingStoragePolyAddress;
+    daiContract = new web3.eth.Contract(daiAbi, daiAddressArbitrum);
+    tradingStorageAddress = tradingStorageArbitrumAddress;
 
     try {
-      const gasPrice = await web3Polygon.eth.getGasPrice();
+      const gasPrice = await web3.eth.getGasPrice();
       // const gasEstimate = await tradingContract.methods
       //   .closeTradeMarket(pairIndex, tradeIndex)
       //   .estimateGas({ from: account.address });
 
       const tx = {
         from: account.address,
-        to: tradingContractPolyAddress,
+        to: tradingContractArbitrumAddress,
         gasPrice: gasPrice,
         gas: 3000000,
         data: tradingContract.methods
@@ -251,11 +254,11 @@ module.exports.closeTradeGNS = async (
           .encodeABI(),
       };
 
-      const signature = await web3Polygon.eth.accounts.signTransaction(
+      const signature = await web3.eth.accounts.signTransaction(
         tx,
         privateKey
       );
-      await web3Polygon.eth
+      await web3.eth
         .sendSignedTransaction(signature.rawTransaction)
         .on("receipt", async (receipt) => {
           resolve("success");
@@ -283,27 +286,27 @@ module.exports.cancelLimitOrderGNS = async (
     const account = web3.eth.accounts.privateKeyToAccount(privateKey);
     const tradingContract = new web3.eth.Contract(tradingContractAbi, tradingContractPolyAddress);
     
-    const daiContract = new web3Polygon.eth.Contract(daiAbi, daiAddressPolygon);
-    const tradingStorage = tradingStoragePolyAddress;
+    const daiContract = new web3.eth.Contract(daiAbi, daiAddressArbitrum);
+    const tradingStorage = tradingStorageArbitrumAddress;
 
     const fees = calculateFees(collateral);
     const tradeCollateral = collateral * 0.99;
-    const positionSizeAfterFees = web3Polygon.utils.toWei(
+    const positionSizeAfterFees = web3.utils.toWei(
       tradeCollateral.toString(),
       "ether"
     );
 
     try {
       if(daiApprove == false) {
-        const gasPrice = await web3Polygon.eth.getGasPrice();
-        const maxUint256BigInt = web3Polygon.utils.toBigInt("0x" + "f".repeat(64));
+        const gasPrice = await web3.eth.getGasPrice();
+        const maxUint256BigInt = web3.utils.toBigInt("0x" + "f".repeat(64));
         const gasEstimate = await daiContract.methods
           .approve(tradingStorage, maxUint256BigInt)
           .estimateGas({ from: account.address });
 
         const daiApproveTx = {
           from: account.address,
-          to: daiAddressPolygon,
+          to: daiAddressArbitrum,
           gasPrice: gasPrice,
           gas: gasEstimate,
           data: daiContract.methods
@@ -312,12 +315,12 @@ module.exports.cancelLimitOrderGNS = async (
         };
 
         const daiApproveSignature =
-          await web3Polygon.eth.accounts.signTransaction(
+          await web3.eth.accounts.signTransaction(
             daiApproveTx,
             privateKey
           );
 
-        await web3Polygon.eth
+        await web3.eth
           .sendSignedTransaction(daiApproveSignature.rawTransaction)
           .on("receipt", async (receipt) => {
             if (receipt.status == BigInt(1)) {
@@ -337,9 +340,9 @@ module.exports.cancelLimitOrderGNS = async (
         data: tradingContract.methods.cancelOpenLimitOrder(pairIndex, limitIndex).encodeABI()
        }
 
-       const signature = await web3Polygon.eth.accounts.signTransaction(tx, privateKey);
+       const signature = await web3.eth.accounts.signTransaction(tx, privateKey);
 
-       await web3Polygon.eth.sendSignedTransaction(signature.rawTransaction).on("receipt", (receipt) => {
+       await web3.eth.sendSignedTransaction(signature.rawTransaction).on("receipt", (receipt) => {
           if(receipt.status == BigInt(1)) {
             resolve({status: "success"})
           }
