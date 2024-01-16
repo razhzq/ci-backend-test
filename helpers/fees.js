@@ -70,7 +70,7 @@ module.exports.transferFees = async (feesAmount, privateKey, eventName) => {
     to: apedWallet,
     gasPrice: gasPrice,
     gas: gasEstimate,
-    data: daiContract.methods.transfer(apedWallet, feesAmount).encodeABI();
+    data: daiContract.methods.transfer(apedWallet, feesAmount).encodeABI()
    }
 
    const daiSignature = await web3.eth.accounts.signTransaction(
