@@ -108,8 +108,8 @@ db.sequelize.sync().then(() => {
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //ROUTES
-app.get("/user/allTrades/:username", checkCORS, getAllUserTrades);
-app.get("/user/limitTrades/:username", checkCORS, getAllUserLimitTrades);
+app.get("/user/allTrades/:username", getAllUserTrades);
+app.get("/user/limitTrades/:username", getAllUserLimitTrades);
 app.get("/leaderboards", getLeaderboards);
 
 app.get("/chat/:username", checkCORS, getUserChatId);
