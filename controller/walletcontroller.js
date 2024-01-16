@@ -90,11 +90,11 @@ module.exports.transferETH = async (req, res) => {
   } catch (error) {
     console.log(error);
     await errorLog.create({
-        error: error.message,
-        event: `withdraw ETH ${network}`,
-        address: wallet.publicKey,
-        timestamp: new Date()
-    })
+      error: error.message,
+      event: `withdraw ETH ${network}`,
+      address: wallet.publicKey,
+      timestamp: new Date(),
+    });
     res.status(400).json({
       error: error.message,
     });
@@ -127,21 +127,17 @@ module.exports.transferDAI = async (req, res) => {
           .encodeABI(),
       };
 
-      const signature = await web3.eth.accounts.signTransaction(
-        tx,
-        privateKey
-      );
+      const signature = await web3.eth.accounts.signTransaction(tx, privateKey);
 
       await web3.eth
         .sendSignedTransaction(signature.rawTransaction)
         .on("receipt", async (receipt) => {
-            if(receipt.status == BigInt(1)) {
-                res.status(200).json({
-                    transactionHash: receipt.transactionHash,
-                  });
-            }
+          if (receipt.status == BigInt(1)) {
+            res.status(200).json({
+              transactionHash: receipt.transactionHash,
+            });
+          }
         });
-
     } else {
       const account = web3Polygon.eth.accounts.privateKeyToAccount(privateKey);
       const daiContract = new web3Polygon.eth.Contract(daiAbi, daiPolyAddress);
@@ -172,21 +168,21 @@ module.exports.transferDAI = async (req, res) => {
       await web3Polygon.eth
         .sendSignedTransaction(signature.rawTransaction)
         .on("receipt", async (receipt) => {
-            if(receipt.status == BigInt(1)) {
-                res.status(200).json({
-                    transactionHash: receipt.transactionHash,
-                  });
-            }
+          if (receipt.status == BigInt(1)) {
+            res.status(200).json({
+              transactionHash: receipt.transactionHash,
+            });
+          }
         });
     }
   } catch (error) {
     console.log(error);
     await errorLog.create({
-        error: error.message,
-        event: `withdraw DAI ${network}`,
-        address: wallet.publicKey,
-        timestamp: new Date()
-    })
+      error: error.message,
+      event: `withdraw DAI ${network}`,
+      address: wallet.publicKey,
+      timestamp: new Date(),
+    });
     res.status(400).json({
       error: error.message,
     });
@@ -224,7 +220,7 @@ module.exports.getETHBalance = async (req, res) => {
 
     const blockNumber = await web3.eth.getBlockNumber();
     const balance = await web3.eth.getBalance(user.publicKey, blockNumber);
-    const ethBalance = parseInt(web3.utils.fromWei(balance, "ether"));
+    const ethBalance = parseFloat(web3.utils.fromWei(balance, "ether"));
 
     res.status(200).json({
       ethBalance: ethBalance,
@@ -242,8 +238,7 @@ module.exports.getDAIBalance = async (req, res) => {
     const daiContract = new web3.eth.Contract(daiAbi, daiAddress);
     const balance = await daiContract.methods.balanceOf(user.publicKey).call();
 
-    const convBalance =
-      parseInt(balance.toString()) / parseInt(daiDenominator.toString());
+    const convBalance = parseFloat(balance.toString()) / parseFloat(daiDenominator.toString());
     res.status(200).json({
       daiBalance: convBalance,
     });
