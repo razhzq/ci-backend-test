@@ -90,6 +90,9 @@ app.use(
 
 const sequelize = new Sequelize(process.env.DB_URL, {
   dialect: "postgres", // Replace 'mysql' with your actual database dialect (e.g., 'postgres' or 'sqlite')
+  dialectOptions: {
+    ssl:'Amazon RDS'
+},
 });
 
 sequelize
@@ -149,7 +152,7 @@ app.post("/wallet/withdraw/dai", authenticateToken, transferDAI);
 
 app.post("/user/airdrop", userAirdropPoints);
 
-app.get("/", checkCORS,  (_, res) => {
+app.get("/", (_, res) => {
    res.status(200).json('Welcome to ApedBot API');
 })
 
