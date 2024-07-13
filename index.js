@@ -81,6 +81,8 @@ io.on("connection", (socket) => {
   })
 });
 
+
+
 app.use(bodyParser.json());
 app.use(
   cors({
@@ -110,6 +112,8 @@ db.sequelize.sync().then(() => {
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+app.route('/gmx/', gmxRouter);
+
 //ROUTES
 app.get("/user/allTrades/:username", getAllUserTrades);
 app.get("/user/limitTrades/:username", getAllUserLimitTrades);
@@ -132,10 +136,6 @@ app.get("/verify/token", checkCORS , verifyToken);
 
 app.post("/market/gns", authenticateToken, OpenMarketGNS);
 app.post("/close/gns", authenticateToken, closeMarketOrderGNS);
-app.post("/market/gmx", authenticateToken, openMarketGMX);
-app.post("/limit/gmx", authenticateToken, openLimitGMX);
-app.post("/close/gmx", authenticateToken, closeMarketGMX);
-app.post("/close/limit/gmx", authenticateToken, cancelLimitGMX);
 app.post("/close/limit/gns", authenticateToken, cancelLimitGNS);
 
 app.post("/code/create",createBetaCodes);
